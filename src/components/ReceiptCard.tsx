@@ -11,6 +11,7 @@ interface ReceiptProps {
     nama_donatur: string;
     nominal: number;
     keperluan: string;
+    penyerah?: string;
     tanggal: string;
     bendahara: string;
     unique_hash: string;
