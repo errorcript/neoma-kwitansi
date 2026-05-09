@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💎 NEOMA SYSTEM - Official Kwitansi Paguyuban
 
-## Getting Started
+Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dharma Putra Mahesa**. Didesain dengan estetika *Glassmorphism* modern dan presisi tinggi untuk kebutuhan cetak bukti donasi.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Vercel Postgres](https://img.shields.io/badge/Vercel-Postgres-000000?style=for-the-badge&logo=vercel)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Fitur Unggulan
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 🎨 **Premium Glassmorphism UI**: Antarmuka modern yang bersih, responsif, dan elegan.
+- 🖨️ **Precision Printing (210mm x 105mm)**: Layout kwitansi yang dioptimalkan untuk ukuran A4 (sepertiga lembar) dengan presisi pixel-perfect.
+- 🚀 **Bulk Entry System**: Input banyak data sekaligus menggunakan format CSV-like untuk efisiensi tinggi.
+- 📊 **Real-time Rekapitulasi**: Dashboard monitoring total dana dan log transaksi secara transparan.
+- 🛡️ **Secure API Architecture**: Pemrosesan data sisi server menggunakan Vercel Postgres untuk keamanan integritas data.
+- 📲 **WhatsApp Integration**: Berbagi kwitansi PDF langsung ke WhatsApp donatur dengan satu klik.
+- 🔑 **Master Admin Access**: Sistem login terpusat untuk menjaga keamanan konfigurasi.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework**: Next.js 16 (Turbopack)
+- **Styling**: Tailwind CSS v4 (Custom Modern System)
+- **Database**: Vercel Postgres (Serverless SQL)
+- **PDF Generation**: jsPDF & html2canvas
+- **Icons**: Lucide React
+- **QR Engine**: qrcode.react (Verification System)
 
-## Learn More
+## 🚀 Cara Instalasi
 
-To learn more about Next.js, take a look at the following resources:
+1. Clone repositori:
+   ```bash
+   git clone https://github.com/errorcript/neoma-kwitansi.git
+   ```
+2. Instal dependensi:
+   ```bash
+   npm install
+   ```
+3. Set variabel lingkungan (.env):
+   ```env
+   POSTGRES_URL="your-vercel-postgres-url"
+   ADMIN_PASSWORD="your-secure-password"
+   ```
+4. Jalankan aplikasi:
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📜 Lisensi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Eksklusif dikembangkan untuk **Paguyuban Dharma Putra Mahesa**.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Built with ❤️ by Antigravity for Neoma.*
