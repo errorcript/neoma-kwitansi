@@ -1,6 +1,7 @@
 import { sql } from "@vercel/postgres";
 
 export async function createTable() {
+  // Pecah perintah SQL biar gak error di serverless driver
   await sql`
     CREATE TABLE IF NOT EXISTS donasi_logs (
       id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -13,14 +14,19 @@ export async function createTable() {
       status TEXT DEFAULT 'active',
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
+  `;
 
+  await sql`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+  `;
 
-    -- Insert default bendahara if not exists
-    INSERT INTO settings (key, value) VALUES ('bendahara_name', 'DIDIK SUBIYANTO') ON CONFLICT (key) DO NOTHING;
+  await sql`
+    INSERT INTO settings (key, value) 
+    VALUES ('bendahara_name', 'DIDIK SUBIYANTO') 
+    ON CONFLICT (key) DO NOTHING;
   `;
 }
 
