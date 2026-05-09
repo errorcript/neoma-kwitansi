@@ -85,7 +85,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
           </div>
 
           <div className="flex flex-col items-center">
-            <QRCodeSVG value={`https://neoma-kwitansi.vercel.app/verify/${data.unique_hash}`} size={56} />
+            <QRCodeSVG value={`https://kwitansi.neoma.space/verify/${data.unique_hash}`} size={56} />
             <p className="text-[8px] mt-1 text-gray-400 tracking-tighter">Scan to Verify</p>
           </div>
 
@@ -99,7 +99,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
             {/* WhatsApp Share Button (No Print) */}
             <button 
               onClick={() => {
-                const text = encodeURIComponent(`Halo, ini adalah kwitansi resmi dari Paguyuban Dharma Putra Mahesa.\n\nAtas Nama: ${data.nama_donatur}\nNominal: ${formatCurrency(data.nominal)}\n\nCek keaslian kwitansi di sini:\nhttps://neoma-kwitansi.vercel.app/verify/${data.unique_hash}`);
+                const text = encodeURIComponent(`Halo, ini adalah kwitansi resmi dari Paguyuban Dharma Putra Mahesa.\n\nAtas Nama: ${data.nama_donatur}\nNominal: ${formatCurrency(data.nominal)}\n\nCek keaslian kwitansi di sini:\nhttps://kwitansi.neoma.space/verify/${data.unique_hash}`);
                 window.open(`https://wa.me/?text=${text}`, '_blank');
               }}
               className="mt-4 no-print bg-green-500 text-white text-[10px] px-3 py-1 rounded-full font-bold flex items-center gap-1 hover:bg-green-600 transition-all"
