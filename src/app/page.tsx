@@ -217,7 +217,7 @@ export default function Home() {
           <div className="flex items-center justify-between px-2">
             <h2 className="text-xl font-black text-brand-secondary tracking-tight uppercase">Live Preview</h2>
             <div className="bg-white/50 px-4 py-1 rounded-full border border-slate-100">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">A4 Scale: {(scale * 100).toFixed(0)}%</span>
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">A4 Layout Preview</span>
             </div>
           </div>
           
