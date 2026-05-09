@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ReceiptCard } from "@/components/ReceiptCard";
 import { Printer, Save, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
