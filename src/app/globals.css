@@ -1,37 +1,61 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --color-brand-primary: #8fc0c0;
-  --color-brand-secondary: #353e4c;
-  --color-brand-accent: #f59e0b;
+:root {
+  --brand-primary: #8fc0c0;
+  --brand-secondary: #353e4c;
+  --brand-accent: #ff7e67;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
 }
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --primary: 180 30% 66%;
-    --secondary: 217 18% 25%;
-  }
-
-  @media print {
-    body {
-      background: white;
-    }
-    .no-print {
-      display: none !important;
-    }
-    .print-container {
-      width: 210mm; /* A4 width */
-      margin: 0;
-      padding: 0;
-    }
-    .page-break {
-      page-break-after: always;
-    }
+  body {
+    @apply bg-[#f0f4f8] text-slate-800 antialiased selection:bg-brand-primary selection:text-white;
   }
 }
 
-body {
-  @apply bg-gray-50 text-brand-secondary antialiased;
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.05)];
+  }
+  
+  .btn-premium {
+    @apply relative overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl active:shadow-md;
+  }
+
+  .input-modern {
+    @apply block w-full rounded-2xl border-gray-100 bg-white/50 focus:bg-white focus:ring-2 focus:ring-brand-primary/50 p-4 border text-brand-secondary font-bold transition-all outline-none;
+  }
+}
+
+.no-print {
+  @media print {
+    display: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out 0s 2;
 }

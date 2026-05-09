@@ -55,34 +55,40 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-2 md:p-8 bg-gray-100">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
+    <main className="min-h-screen p-2 md:p-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Input Form Section (No Print) */}
-        <section className="no-print space-y-4">
-          <div className="bg-white p-4 md:p-6 rounded-3xl shadow-lg border border-gray-200">
-            <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+        <section className="no-print lg:col-span-4 space-y-4">
+          <div className="glass-card p-6 md:p-8 rounded-[2.5rem] sticky top-24">
+            <div className="flex bg-slate-100/50 p-1.5 rounded-2xl mb-8">
               <button 
                 onClick={() => setMode('single')}
-                className={cn("flex-1 py-2 rounded-lg font-bold transition-all", mode === 'single' ? "bg-white text-brand-primary shadow-sm" : "text-gray-400")}
+                className={cn(
+                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-500", 
+                  mode === 'single' ? "bg-white text-brand-secondary shadow-xl scale-[1.02]" : "text-slate-400 hover:text-slate-600"
+                )}
               >
-                Single
+                SINGLE
               </button>
               <button 
                 onClick={() => setMode('bulk')}
-                className={cn("flex-1 py-2 rounded-lg font-bold transition-all", mode === 'bulk' ? "bg-white text-brand-primary shadow-sm" : "text-gray-400")}
+                className={cn(
+                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-500", 
+                  mode === 'bulk' ? "bg-white text-brand-secondary shadow-xl scale-[1.02]" : "text-slate-400 hover:text-slate-600"
+                )}
               >
-                Bulk (CSV)
+                BULK (CSV)
               </button>
             </div>
             
             {mode === 'single' ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nama Donatur</label>
+              <div className="space-y-6">
+                <div className="group">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Nama Donatur</label>
                   <input 
                     type="text" 
-                    className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
+                    className="input-modern"
                     placeholder="Contoh: Haji Lulung"
                     onChange={(e) => {
                       const newReceipts = [...receipts];
@@ -93,11 +99,11 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nominal (Rp)</label>
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Nominal (Rp)</label>
                     <input 
                       type="number" 
-                      className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
+                      className="input-modern"
                       placeholder="100000"
                       onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => {
@@ -108,12 +114,12 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Yang Menyerahkan</label>
+                  <div className="group">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Penyerah</label>
                     <input 
                       type="text" 
-                      className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
-                      placeholder="Nama Admin/Donatur"
+                      className="input-modern"
+                      placeholder="Admin"
                       onChange={(e) => {
                         const newReceipts = [...receipts];
                         newReceipts[0].penyerah = e.target.value;
@@ -122,18 +128,27 @@ export default function Home() {
                     />
                   </div>
                 </div>
+
+                <div className="group">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Keperluan</label>
+                  <input 
+                    type="text" 
+                    className="input-modern"
+                    defaultValue={receipts[0].keperluan}
+                    onChange={(e) => {
+                      const newReceipts = [...receipts];
+                      newReceipts[0].keperluan = e.target.value;
+                      setReceipts(newReceipts);
+                    }}
+                  />
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
-                <h2 className="text-xl font-bold text-brand-secondary mb-4 flex items-center gap-2">
-                  <Plus className="w-6 h-6 text-brand-primary" />
-                  Bulk Input (Format: Nama, Nominal)
-                </h2>
-                <p className="text-xs text-gray-500 italic">Contoh:<br/>Budi, 150000<br/>Ani, 200000</p>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Data Donatur (Nama, Nominal)</label>
                 <textarea 
-                  rows={6}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary p-2 border text-brand-secondary font-mono text-sm"
-                  placeholder="Paste list di sini..."
+                  className="input-modern min-h-[200px] font-mono text-xs"
+                  placeholder="Haji Lulung, 100000&#10;Bang Jago, 50000"
                   onChange={(e) => {
                     const lines = e.target.value.split('\n').filter(l => l.trim() !== '');
                     const newReceipts = lines.map((line, i) => {
@@ -145,7 +160,7 @@ export default function Home() {
                         penyerah: "",
                         keperluan: "Sumbangan Donatur Mobsos",
                         tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                        bendahara: "DIDIK SUBIYANTO",
+                        bendahara: receipts[0].bendahara,
                         unique_hash: `bulk-${i}-${Date.now()}`,
                       };
                     });
@@ -155,63 +170,49 @@ export default function Home() {
               </div>
             )}
 
-            <div className="mt-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Keperluan</label>
-                <input 
-                  type="text" 
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary p-2 border text-brand-secondary"
-                  defaultValue="Sumbangan Donatur Mobsos"
-                  onChange={(e) => {
-                    const newReceipts = receipts.map(r => ({ ...r, keperluan: e.target.value }));
-                    setReceipts(newReceipts);
-                  }}
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button 
-                  onClick={handlePrint}
-                  className="flex-1 bg-brand-secondary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all"
-                >
-                  <Printer className="w-5 h-5" />
-                  Cetak {receipts.length} Kwitansi
-                </button>
-                <button 
-                  onClick={handleSave}
-                  disabled={loading || receipts[0].nama_donatur === ''}
-                  className="flex-1 bg-brand-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
-                >
-                  <Save className={cn("w-5 h-5", loading && "animate-spin")} />
-                  {loading ? 'Menyimpan...' : 'Simpan Semua'}
-                </button>
-              </div>
+            <div className="grid grid-cols-2 gap-4 mt-10">
+              <button 
+                onClick={handlePrint}
+                className="btn-premium flex flex-col items-center justify-center gap-2 bg-brand-secondary text-white p-4 rounded-3xl"
+              >
+                <Printer className="w-6 h-6 text-brand-primary" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Cetak</span>
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={loading}
+                className={cn(
+                  "btn-premium flex flex-col items-center justify-center gap-2 p-4 rounded-3xl",
+                  loading ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-brand-primary text-brand-secondary"
+                )}
+              >
+                <Save className={cn("w-6 h-6", loading ? "animate-pulse" : "")} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Simpan</span>
+              </button>
             </div>
-          </div>
-
-          <div className="bg-brand-primary/10 p-4 rounded-xl border border-brand-primary/20">
-            <p className="text-sm text-brand-secondary">
-              <strong>Tip:</strong> Tekan <code>Ctrl + P</code> untuk mencetak. Pastikan setting kertas A4 dan "Background Graphics" dicentang di menu print.
-            </p>
           </div>
         </section>
 
         {/* Preview Section */}
-        <section className="print-container space-y-0">
-          <h2 className="text-xl font-bold text-gray-400 mb-4 no-print">Preview (A4 Ready)</h2>
-          <div className="flex flex-col gap-0 border shadow-2xl lg:shadow-none bg-white">
-            {receipts.map((data, idx) => (
-              <ReceiptCard key={idx} data={data} />
-            ))}
-            {/* Mock extra receipts to show A4 layout */}
-            <div className="hidden lg:block no-print">
-              <div className="h-[105mm] border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 italic">
-                Slot Kwitansi Kosong (A4 Bagi 3)
-              </div>
-              <div className="h-[105mm] border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 italic">
-                Slot Kwitansi Kosong (A4 Bagi 3)
-              </div>
+        <section className="lg:col-span-8 space-y-6">
+          <div className="flex items-center justify-between px-4">
+            <h2 className="text-xl font-black text-brand-secondary flex items-center gap-3">
+              <div className="w-2 h-8 bg-brand-primary rounded-full"></div>
+              PREVIEW KWITANSI
+            </h2>
+            <div className="px-4 py-1.5 bg-brand-primary/10 rounded-full border border-brand-primary/20">
+              <span className="text-[10px] font-black text-brand-primary uppercase tracking-widest">A4 Paper Ready</span>
             </div>
+          </div>
+          
+          <div className="space-y-8 pb-20">
+            {receipts.map((receipt, idx) => (
+              <div key={idx} className="flex justify-center hover:scale-[1.01] transition-transform duration-500">
+                <div className="shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] rounded-sm overflow-hidden">
+                  <ReceiptCard data={receipt} />
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
