@@ -6,20 +6,49 @@ import { Printer, Save, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
+  const [mode, setMode] = useState<'single' | 'bulk'>('single');
+  const [loading, setLoading] = useState(false);
   const [receipts, setReceipts] = useState([
     {
       no_kwitansi: "001/PAG-DPM/MOBSOS/05/2026",
-      nama_donatur: "Donatur Contoh",
-      nominal: 150000,
+      nama_donatur: "",
+      nominal: 0,
       keperluan: "Sumbangan Donatur Mobsos",
-      tanggal: "09 Mei 2026",
+      tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
       bendahara: "DIDIK SUBIYANTO",
-      unique_hash: "abc-123",
+      unique_hash: Math.random().toString(36).substring(7),
     },
   ]);
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      // Logic Simpan ke Supabase
+      const { data, error } = await supabase
+        .from('donasi_logs')
+        .insert(
+          receipts.map(r => ({
+            no_kwitansi: r.no_kwitansi,
+            nama_donatur: r.nama_donatur,
+            nominal: r.nominal,
+            keperluan: r.keperluan,
+            unique_hash: r.unique_hash,
+            status: 'active'
+          }))
+        );
+
+      if (error) throw error;
+      
+      alert(`Berhasil menyimpan ${receipts.length} data ke database!`);
+    } catch (error: any) {
+      alert(`Error: ${error.message}. Pastikan lo udah setting Supabase Keys di .env`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -133,10 +162,12 @@ export default function Home() {
                   Cetak {receipts.length} Kwitansi
                 </button>
                 <button 
-                  className="flex-1 bg-brand-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all"
+                  onClick={handleSave}
+                  disabled={loading || receipts[0].nama_donatur === ''}
+                  className="flex-1 bg-brand-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
                 >
-                  <Save className="w-5 h-5" />
-                  Simpan Semua
+                  <Save className={cn("w-5 h-5", loading && "animate-spin")} />
+                  {loading ? 'Menyimpan...' : 'Simpan Semua'}
                 </button>
               </div>
             </div>
