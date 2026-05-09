@@ -70,7 +70,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-sm font-bold min-w-[120px]">Untuk pembay :</span>
+            <span className="text-sm font-bold min-w-[120px]">Untuk Pembayaran :</span>
             <span className="flex-1 border-b border-dotted border-gray-400">
               {data.keperluan}
             </span>
@@ -80,9 +80,8 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         {/* Footer */}
         <div className="mt-4 flex justify-between items-end">
           <div className="flex flex-col items-center">
-            <p className="text-xs font-bold mb-8">Yang menyerahkan</p>
-            <div className="w-32 border-b border-black"></div>
-            <p className="text-[10px] mt-1">(....................................)</p>
+            <p className="text-xs font-bold mb-8 uppercase text-gray-400">Yang menyerahkan</p>
+            <p className="text-sm font-bold uppercase underline min-w-[100px] text-center">{data.penyerah || '....................'}</p>
           </div>
 
           <div className="flex flex-col items-center">

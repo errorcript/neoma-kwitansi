@@ -14,6 +14,7 @@ export default function Home() {
       no_kwitansi: "001/PAG-DPM/MOBSOS/05/2026",
       nama_donatur: "",
       nominal: 0,
+      penyerah: "",
       keperluan: "Sumbangan Donatur Mobsos",
       tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
       bendahara: "DIDIK SUBIYANTO",
@@ -26,9 +27,12 @@ export default function Home() {
   };
 
   const handleSave = async () => {
+    if (receipts[0].nama_donatur === '') {
+      alert("Isi nama donatur dulu bre!");
+      return;
+    }
     setLoading(true);
     try {
-      // Logic Simpan ke Vercel Postgres
       await db.saveReceipts(receipts);
       alert(`Berhasil menyimpan ${receipts.length} data ke database Vercel!`);
     } catch (error: any) {
@@ -39,40 +43,35 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-gray-50">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <main className="min-h-screen p-2 md:p-8 bg-gray-100">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
         
         {/* Input Form Section (No Print) */}
-        <section className="no-print space-y-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <div className="flex border-b mb-6">
+        <section className="no-print space-y-4">
+          <div className="bg-white p-4 md:p-6 rounded-3xl shadow-lg border border-gray-200">
+            <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
               <button 
                 onClick={() => setMode('single')}
-                className={cn("pb-2 px-4 font-bold transition-all", mode === 'single' ? "border-b-2 border-brand-primary text-brand-primary" : "text-gray-400")}
+                className={cn("flex-1 py-2 rounded-lg font-bold transition-all", mode === 'single' ? "bg-white text-brand-primary shadow-sm" : "text-gray-400")}
               >
-                Single Entry
+                Single
               </button>
               <button 
                 onClick={() => setMode('bulk')}
-                className={cn("pb-2 px-4 font-bold transition-all", mode === 'bulk' ? "border-b-2 border-brand-primary text-brand-primary" : "text-gray-400")}
+                className={cn("flex-1 py-2 rounded-lg font-bold transition-all", mode === 'bulk' ? "bg-white text-brand-primary shadow-sm" : "text-gray-400")}
               >
-                Bulk Entry (Anti-Mager)
+                Bulk (CSV)
               </button>
             </div>
             
             {mode === 'single' ? (
               <div className="space-y-4">
-                <h2 className="text-xl font-bold text-brand-secondary mb-4 flex items-center gap-2">
-                  <Plus className="w-6 h-6 text-brand-primary" />
-                  Input Data Kwitansi
-                </h2>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama Donatur</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nama Donatur</label>
                   <input 
                     type="text" 
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary p-2 border text-brand-secondary"
-                    placeholder="Masukkan nama..."
+                    className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
+                    placeholder="Contoh: Haji Lulung"
                     onChange={(e) => {
                       const newReceipts = [...receipts];
                       newReceipts[0].nama_donatur = e.target.value;
@@ -81,18 +80,35 @@ export default function Home() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Nominal (Rp)</label>
-                  <input 
-                    type="number" 
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary p-2 border text-brand-secondary"
-                    placeholder="Contoh: 150000"
-                    onChange={(e) => {
-                      const newReceipts = [...receipts];
-                      newReceipts[0].nominal = Number(e.target.value);
-                      setReceipts(newReceipts);
-                    }}
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Nominal (Rp)</label>
+                    <input 
+                      type="number" 
+                      className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
+                      placeholder="100000"
+                      onWheel={(e) => e.currentTarget.blur()}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : Number(e.target.value);
+                        const newReceipts = [...receipts];
+                        newReceipts[0].nominal = val;
+                        setReceipts(newReceipts);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Yang Menyerahkan</label>
+                    <input 
+                      type="text" 
+                      className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
+                      placeholder="Nama Admin/Donatur"
+                      onChange={(e) => {
+                        const newReceipts = [...receipts];
+                        newReceipts[0].penyerah = e.target.value;
+                        setReceipts(newReceipts);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             ) : (
