@@ -55,17 +55,17 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-2 md:p-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <main className="min-h-screen p-4 md:p-8 bg-[#f8fafc]">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
         
         {/* Input Form Section (No Print) */}
-        <section className="no-print lg:col-span-4 space-y-4">
-          <div className="glass-card p-6 md:p-8 rounded-[2.5rem] sticky top-24">
+        <aside className="no-print w-full lg:w-[400px] shrink-0 space-y-6">
+          <div className="glass-card p-6 md:p-8 rounded-[2.5rem] shadow-2xl">
             <div className="flex bg-slate-100/50 p-1.5 rounded-2xl mb-8">
               <button 
                 onClick={() => setMode('single')}
                 className={cn(
-                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-500", 
+                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-300", 
                   mode === 'single' ? "bg-white text-brand-secondary shadow-xl scale-[1.02]" : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -74,7 +74,7 @@ export default function Home() {
               <button 
                 onClick={() => setMode('bulk')}
                 className={cn(
-                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-500", 
+                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-300", 
                   mode === 'bulk' ? "bg-white text-brand-secondary shadow-xl scale-[1.02]" : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -90,6 +90,7 @@ export default function Home() {
                     type="text" 
                     className="input-modern"
                     placeholder="Contoh: Haji Lulung"
+                    value={receipts[0].nama_donatur}
                     onChange={(e) => {
                       const newReceipts = [...receipts];
                       newReceipts[0].nama_donatur = e.target.value;
@@ -105,6 +106,7 @@ export default function Home() {
                       type="number" 
                       className="input-modern"
                       placeholder="100000"
+                      value={receipts[0].nominal || ''}
                       onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => {
                         const val = e.target.value === '' ? 0 : Number(e.target.value);
@@ -120,6 +122,7 @@ export default function Home() {
                       type="text" 
                       className="input-modern"
                       placeholder="Admin"
+                      value={receipts[0].penyerah}
                       onChange={(e) => {
                         const newReceipts = [...receipts];
                         newReceipts[0].penyerah = e.target.value;
@@ -134,7 +137,7 @@ export default function Home() {
                   <input 
                     type="text" 
                     className="input-modern"
-                    defaultValue={receipts[0].keperluan}
+                    value={receipts[0].keperluan}
                     onChange={(e) => {
                       const newReceipts = [...receipts];
                       newReceipts[0].keperluan = e.target.value;
@@ -147,7 +150,7 @@ export default function Home() {
               <div className="space-y-4">
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Data Donatur (Nama, Nominal)</label>
                 <textarea 
-                  className="input-modern min-h-[200px] font-mono text-xs"
+                  className="input-modern min-h-[200px] font-mono text-xs leading-relaxed"
                   placeholder="Haji Lulung, 100000&#10;Bang Jago, 50000"
                   onChange={(e) => {
                     const lines = e.target.value.split('\n').filter(l => l.trim() !== '');
@@ -173,7 +176,7 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 mt-10">
               <button 
                 onClick={handlePrint}
-                className="btn-premium flex flex-col items-center justify-center gap-2 bg-brand-secondary text-white p-4 rounded-3xl"
+                className="btn-premium flex flex-col items-center justify-center gap-2 bg-brand-secondary text-white p-5 rounded-[2rem]"
               >
                 <Printer className="w-6 h-6 text-brand-primary" />
                 <span className="text-[10px] font-black uppercase tracking-widest">Cetak</span>
@@ -182,40 +185,38 @@ export default function Home() {
                 onClick={handleSave}
                 disabled={loading}
                 className={cn(
-                  "btn-premium flex flex-col items-center justify-center gap-2 p-4 rounded-3xl",
+                  "btn-premium flex flex-col items-center justify-center gap-2 p-5 rounded-[2rem]",
                   loading ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-brand-primary text-brand-secondary"
                 )}
               >
                 <Save className={cn("w-6 h-6", loading ? "animate-pulse" : "")} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Simpan</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">{loading ? 'Proses...' : 'Simpan'}</span>
               </button>
             </div>
           </div>
-        </section>
+
+          <div className="p-6 bg-brand-primary/5 rounded-[2rem] border border-brand-primary/10 no-print">
+            <p className="text-[10px] text-slate-400 font-bold leading-relaxed">
+              <strong className="text-brand-secondary uppercase">Tip Cetak:</strong> Gunakan browser Chrome untuk hasil terbaik. Pastikan ukuran kertas A4 dan opsi "Background Graphics" dicentang.
+            </p>
+          </div>
+        </aside>
 
         {/* Preview Section */}
-        <section className="lg:col-span-8 space-y-6">
-          <div className="flex items-center justify-between px-4">
-            <h2 className="text-xl font-black text-brand-secondary flex items-center gap-3">
-              <div className="w-2 h-8 bg-brand-primary rounded-full"></div>
-              PREVIEW KWITANSI
-            </h2>
-            <div className="px-4 py-1.5 bg-brand-primary/10 rounded-full border border-brand-primary/20">
-              <span className="text-[10px] font-black text-brand-primary uppercase tracking-widest">A4 Paper Ready</span>
+        <div className="flex-1 w-full space-y-6">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-2xl font-black text-brand-secondary tracking-tight">PREVIEW</h2>
+            <div className="bg-white/50 px-4 py-1.5 rounded-full border border-slate-200">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">A4 Layout Preview</span>
             </div>
           </div>
           
-          <div className="space-y-8 pb-20">
+          <div className="space-y-6">
             {receipts.map((receipt, idx) => (
-              <div key={idx} className="flex justify-center hover:scale-[1.01] transition-transform duration-500">
-                <div className="shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] rounded-sm overflow-hidden">
-                  <ReceiptCard data={receipt} />
-                </div>
-              </div>
+              <ReceiptCard key={receipt.unique_hash || idx} data={receipt} />
             ))}
           </div>
-        </section>
-
+        </div>
       </div>
     </main>
   );
