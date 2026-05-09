@@ -14,7 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Sistem Kwitansi Neoma - Paguyuban Dharma Putra Mahesa",
-  description: "Aplikasi generate kwitansi otomatis Neoma Creative Hub",
+  description: "Sistem kwitansi otomatis profesional untuk transparansi donasi.",
+  icons: {
+    icon: "/logo-paguyuban.png",
+    apple: "/logo-paguyuban.png",
+  }
 };
 
 import { Header } from "@/components/Header";
