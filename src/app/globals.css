@@ -12,7 +12,15 @@
 
 @layer base {
   body {
-    @apply bg-[#f0f4f8] text-slate-800 antialiased selection:bg-brand-primary selection:text-white;
+    background-color: #f0f4f8;
+    color: #1e293b; /* slate-800 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  ::selection {
+    background-color: var(--brand-primary);
+    color: white;
   }
 }
 
@@ -38,7 +46,7 @@
 
 @media print {
   body {
-    background: white;
+    background: white !important;
     padding: 0 !important;
     margin: 0 !important;
   }
