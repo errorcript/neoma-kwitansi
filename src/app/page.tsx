@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ReceiptCard } from "@/components/ReceiptCard";
 import { Printer, Save, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/db";
 
 export default function Home() {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
@@ -28,25 +28,11 @@ export default function Home() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Logic Simpan ke Supabase
-      const { data, error } = await supabase
-        .from('donasi_logs')
-        .insert(
-          receipts.map(r => ({
-            no_kwitansi: r.no_kwitansi,
-            nama_donatur: r.nama_donatur,
-            nominal: r.nominal,
-            keperluan: r.keperluan,
-            unique_hash: r.unique_hash,
-            status: 'active'
-          }))
-        );
-
-      if (error) throw error;
-      
-      alert(`Berhasil menyimpan ${receipts.length} data ke database!`);
+      // Logic Simpan ke Vercel Postgres
+      await db.saveReceipts(receipts);
+      alert(`Berhasil menyimpan ${receipts.length} data ke database Vercel!`);
     } catch (error: any) {
-      alert(`Error: ${error.message}. Pastikan lo udah setting Supabase Keys di .env`);
+      alert(`Error: ${error.message}`);
     } finally {
       setLoading(false);
     }
