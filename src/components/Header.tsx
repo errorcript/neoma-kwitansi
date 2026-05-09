@@ -41,6 +41,19 @@ export const Header = () => {
               </Link>
             );
           })}
+
+          <button
+            onClick={async () => {
+              if (confirm("Yakin mau logout bre?")) {
+                await fetch("/api/logout", { method: "POST" });
+                window.location.href = "/login";
+              }
+            }}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all ml-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden xs:inline">Logout</span>
+          </button>
         </nav>
       </div>
     </header>
