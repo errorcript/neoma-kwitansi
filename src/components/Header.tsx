@@ -16,7 +16,7 @@ export const Header = () => {
 
   return (
     <header className="no-print sticky top-0 z-50 px-4 pt-4 pb-2">
-      <div className="max-w-5xl mx-auto glass-card rounded-[1.5rem] h-14 flex items-center justify-between px-6">
+      <div className="max-w-5xl mx-auto glass-card rounded-[1.5rem] h-14 flex items-center justify-between px-6 shadow-xl">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="bg-brand-secondary p-1 rounded-lg transition-transform group-hover:rotate-6">
             <img src="/logo-paguyuban.png" alt="Logo" className="w-6 h-6 object-contain" />
@@ -39,7 +39,7 @@ export const Header = () => {
                   "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black transition-all uppercase tracking-widest",
                   isActive 
                     ? "bg-brand-secondary text-white shadow-lg shadow-brand-secondary/20 scale-105" 
-                    : "text-slate-400 hover:text-brand-secondary hover:bg-slate-100"
+                    : "text-slate-400 hover:text-brand-secondary hover:bg-slate-50"
                 )}
               >
                 <Icon className={cn("w-3.5 h-3.5", isActive ? "text-brand-primary" : "")} />

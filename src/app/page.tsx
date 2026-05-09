@@ -21,7 +21,6 @@ export default function Home() {
     },
   ]);
 
-  // Fetch settings on mount
   useEffect(() => {
     const fetchSettings = async () => {
       const res = await fetch('/api/settings');
@@ -49,11 +48,9 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ receipts }),
       });
-      
       const result = await res.json();
-      
       if (res.ok) {
-        alert(`Berhasil menyimpan ${receipts.length} data ke database Vercel!`);
+        alert(`Berhasil menyimpan ${receipts.length} data ke database!`);
       } else {
         throw new Error(result.error || "Gagal simpan data");
       }
@@ -66,11 +63,11 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-4 md:p-10 bg-[#f8fafc]">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-10 items-start">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 items-start">
         
-        {/* Input Form Section (No Print) */}
+        {/* Input Form Section */}
         <aside className="no-print w-full lg:w-[380px] shrink-0 space-y-6">
-          <div className="glass-card p-8 rounded-[2rem] shadow-2xl">
+          <div className="glass-card p-8 rounded-[2rem] shadow-2xl border border-white/50">
             <div className="flex bg-slate-100/50 p-1 rounded-xl mb-8">
               <button 
                 onClick={() => setMode('single')}
@@ -99,7 +96,7 @@ export default function Home() {
                   <input 
                     type="text" 
                     className="input-modern"
-                    placeholder="Contoh: Haji Lulung"
+                    placeholder="Masukkan nama donatur"
                     value={receipts[0].nama_donatur}
                     onChange={(e) => {
                       const newReceipts = [...receipts];
@@ -115,9 +112,8 @@ export default function Home() {
                     <input 
                       type="number" 
                       className="input-modern"
-                      placeholder="100000"
+                      placeholder="100.000"
                       value={receipts[0].nominal || ''}
-                      onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => {
                         const val = e.target.value === '' ? 0 : Number(e.target.value);
                         const newReceipts = [...receipts];
@@ -161,7 +157,7 @@ export default function Home() {
                 <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Bulk Data (Nama, Nominal)</label>
                 <textarea 
                   className="input-modern min-h-[180px] font-mono text-[11px] leading-relaxed"
-                  placeholder="Haji Lulung, 100000&#10;Bang Jago, 50000"
+                  placeholder="Nama, Nominal (Contoh: Budi, 100000)"
                   onChange={(e) => {
                     const lines = e.target.value.split('\n').filter(l => l.trim() !== '');
                     const newReceipts = lines.map((line, i) => {
@@ -195,7 +191,7 @@ export default function Home() {
                 onClick={handleSave}
                 disabled={loading}
                 className={cn(
-                  "btn-premium flex items-center justify-center gap-2 py-4 rounded-2xl",
+                  "btn-premium flex items-center justify-center gap-2 py-4 rounded-2xl shadow-lg",
                   loading ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-brand-primary text-brand-secondary"
                 )}
               >
@@ -205,9 +201,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="p-6 bg-white/50 rounded-3xl border border-slate-100 no-print">
+          <div className="p-6 bg-white/50 rounded-3xl border border-slate-100 no-print shadow-sm">
             <p className="text-[9px] text-slate-400 font-bold leading-relaxed uppercase tracking-wider">
-              <strong className="text-brand-secondary">Tip:</strong> Gunakan Chrome untuk hasil cetak terbaik. Pastikan ukuran kertas A4.
+              <strong className="text-brand-secondary">Info:</strong> Gunakan Chrome untuk hasil cetak terbaik. Pastikan ukuran kertas A4 di pengaturan printer.
             </p>
           </div>
         </aside>
@@ -215,9 +211,12 @@ export default function Home() {
         {/* Preview Section */}
         <div className="flex-1 w-full space-y-6">
           <div className="flex items-center justify-between px-2">
-            <h2 className="text-xl font-black text-brand-secondary tracking-tight uppercase">Live Preview</h2>
-            <div className="bg-white/50 px-4 py-1 rounded-full border border-slate-100">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">A4 Layout Preview</span>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-6 bg-brand-primary rounded-full"></div>
+              <h2 className="text-xl font-black text-brand-secondary tracking-tight uppercase">Live Preview</h2>
+            </div>
+            <div className="bg-white/50 px-4 py-1.5 rounded-full border border-slate-100 shadow-sm">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">A4 Scale Ready</span>
             </div>
           </div>
           
