@@ -65,18 +65,18 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-[#f8fafc]">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
+    <main className="min-h-screen p-4 md:p-10 bg-[#f8fafc]">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-10 items-start">
         
         {/* Input Form Section (No Print) */}
-        <aside className="no-print w-full lg:w-[400px] shrink-0 space-y-6">
-          <div className="glass-card p-6 md:p-8 rounded-[2.5rem] shadow-2xl">
-            <div className="flex bg-slate-100/50 p-1.5 rounded-2xl mb-8">
+        <aside className="no-print w-full lg:w-[380px] shrink-0 space-y-6">
+          <div className="glass-card p-8 rounded-[2rem] shadow-2xl">
+            <div className="flex bg-slate-100/50 p-1 rounded-xl mb-8">
               <button 
                 onClick={() => setMode('single')}
                 className={cn(
-                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-300", 
-                  mode === 'single' ? "bg-white text-brand-secondary shadow-xl scale-[1.02]" : "text-slate-400 hover:text-slate-600"
+                  "flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all duration-300", 
+                  mode === 'single' ? "bg-white text-brand-secondary shadow-lg scale-[1.02]" : "text-slate-400 hover:text-slate-600"
                 )}
               >
                 SINGLE
@@ -84,18 +84,18 @@ export default function Home() {
               <button 
                 onClick={() => setMode('bulk')}
                 className={cn(
-                  "flex-1 py-3 rounded-xl font-black text-sm transition-all duration-300", 
-                  mode === 'bulk' ? "bg-white text-brand-secondary shadow-xl scale-[1.02]" : "text-slate-400 hover:text-slate-600"
+                  "flex-1 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all duration-300", 
+                  mode === 'bulk' ? "bg-white text-brand-secondary shadow-lg scale-[1.02]" : "text-slate-400 hover:text-slate-600"
                 )}
               >
-                BULK (CSV)
+                BULK
               </button>
             </div>
             
             {mode === 'single' ? (
               <div className="space-y-6">
                 <div className="group">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Nama Donatur</label>
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Nama Donatur</label>
                   <input 
                     type="text" 
                     className="input-modern"
@@ -111,7 +111,7 @@ export default function Home() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="group">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Nominal (Rp)</label>
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Nominal</label>
                     <input 
                       type="number" 
                       className="input-modern"
@@ -127,7 +127,7 @@ export default function Home() {
                     />
                   </div>
                   <div className="group">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Penyerah</label>
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Penyetor</label>
                     <input 
                       type="text" 
                       className="input-modern"
@@ -143,7 +143,7 @@ export default function Home() {
                 </div>
 
                 <div className="group">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-brand-primary transition-colors">Keperluan</label>
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Keperluan</label>
                   <input 
                     type="text" 
                     className="input-modern"
@@ -158,9 +158,9 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-4">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Data Donatur (Nama, Nominal)</label>
+                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Bulk Data (Nama, Nominal)</label>
                 <textarea 
-                  className="input-modern min-h-[200px] font-mono text-xs leading-relaxed"
+                  className="input-modern min-h-[180px] font-mono text-[11px] leading-relaxed"
                   placeholder="Haji Lulung, 100000&#10;Bang Jago, 50000"
                   onChange={(e) => {
                     const lines = e.target.value.split('\n').filter(l => l.trim() !== '');
@@ -183,31 +183,31 @@ export default function Home() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 mt-10">
+            <div className="grid grid-cols-2 gap-4 mt-8">
               <button 
                 onClick={handlePrint}
-                className="btn-premium flex flex-col items-center justify-center gap-2 bg-brand-secondary text-white p-5 rounded-[2rem]"
+                className="btn-premium flex items-center justify-center gap-2 bg-brand-secondary text-white py-4 rounded-2xl"
               >
-                <Printer className="w-6 h-6 text-brand-primary" />
+                <Printer className="w-4 h-4 text-brand-primary" />
                 <span className="text-[10px] font-black uppercase tracking-widest">Cetak</span>
               </button>
               <button 
                 onClick={handleSave}
                 disabled={loading}
                 className={cn(
-                  "btn-premium flex flex-col items-center justify-center gap-2 p-5 rounded-[2rem]",
+                  "btn-premium flex items-center justify-center gap-2 py-4 rounded-2xl",
                   loading ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-brand-primary text-brand-secondary"
                 )}
               >
-                <Save className={cn("w-6 h-6", loading ? "animate-pulse" : "")} />
-                <span className="text-[10px] font-black uppercase tracking-widest">{loading ? 'Proses...' : 'Simpan'}</span>
+                <Save className={cn("w-4 h-4", loading ? "animate-pulse" : "")} />
+                <span className="text-[10px] font-black uppercase tracking-widest">{loading ? '...' : 'Simpan'}</span>
               </button>
             </div>
           </div>
 
-          <div className="p-6 bg-brand-primary/5 rounded-[2rem] border border-brand-primary/10 no-print">
-            <p className="text-[10px] text-slate-400 font-bold leading-relaxed">
-              <strong className="text-brand-secondary uppercase">Tip Cetak:</strong> Gunakan browser Chrome untuk hasil terbaik. Pastikan ukuran kertas A4 dan opsi "Background Graphics" dicentang.
+          <div className="p-6 bg-white/50 rounded-3xl border border-slate-100 no-print">
+            <p className="text-[9px] text-slate-400 font-bold leading-relaxed uppercase tracking-wider">
+              <strong className="text-brand-secondary">Tip:</strong> Gunakan Chrome untuk hasil cetak terbaik. Pastikan ukuran kertas A4.
             </p>
           </div>
         </aside>
@@ -215,9 +215,9 @@ export default function Home() {
         {/* Preview Section */}
         <div className="flex-1 w-full space-y-6">
           <div className="flex items-center justify-between px-2">
-            <h2 className="text-2xl font-black text-brand-secondary tracking-tight">PREVIEW</h2>
-            <div className="bg-white/50 px-4 py-1.5 rounded-full border border-slate-200">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">A4 Layout Preview</span>
+            <h2 className="text-xl font-black text-brand-secondary tracking-tight uppercase">Live Preview</h2>
+            <div className="bg-white/50 px-4 py-1 rounded-full border border-slate-100">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">A4 Scale: {(scale * 100).toFixed(0)}%</span>
             </div>
           </div>
           
