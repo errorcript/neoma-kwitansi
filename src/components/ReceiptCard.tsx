@@ -78,23 +78,23 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         </div>
 
         {/* Footer */}
-        <div className="mt-4 flex justify-between items-end">
+        <div className="mt-auto flex justify-between items-end pb-2">
           <div className="flex flex-col items-center">
-            <p className="text-xs font-bold mb-8 uppercase text-gray-400">Yang menyerahkan</p>
-            <p className="text-sm font-bold uppercase underline min-w-[100px] text-center">{data.penyerah || '....................'}</p>
+            <p className="text-[10px] font-bold mb-6 uppercase text-gray-400">Yang menyerahkan</p>
+            <p className="text-sm font-bold uppercase underline min-w-[100px] text-center border-b border-gray-200">{data.penyerah || '....................'}</p>
           </div>
 
           <div className="flex flex-col items-center">
-            <QRCodeSVG value={`https://neoma.space/verify/${data.unique_hash}`} size={64} />
-            <p className="text-[8px] mt-1 text-gray-400">Scan to Verify</p>
+            <QRCodeSVG value={`https://neoma-kwitansi.vercel.app/verify/${data.unique_hash}`} size={56} />
+            <p className="text-[8px] mt-1 text-gray-400 tracking-tighter">Scan to Verify</p>
           </div>
 
           <div className="flex flex-col items-center text-right">
-            <p className="text-xs font-bold mb-1">
+            <p className="text-[10px] font-bold mb-1">
               Kalikebo, {data.tanggal}
             </p>
-            <p className="text-xs font-bold mb-8">Bendahara</p>
-            <p className="text-sm font-bold uppercase underline">{data.bendahara}</p>
+            <p className="text-[10px] font-bold mb-6 uppercase text-gray-400">Bendahara</p>
+            <p className="text-sm font-bold uppercase underline min-w-[100px] text-center">{data.bendahara}</p>
             
             {/* WhatsApp Share Button (No Print) */}
             <button 

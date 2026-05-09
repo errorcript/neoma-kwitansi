@@ -1,8 +1,8 @@
 /**
  * Fungsi untuk mengubah angka menjadi teks terbilang Bahasa Indonesia
- * Contoh: 150000 -> "Seratus Lima Puluh Ribu Rupiah"
+ * Contoh: 100000000 -> "Seratus Juta Rupiah"
  */
-export function terbilangIndonesia(nominal: number): string {
+function konversi(nominal: number): string {
   const bilangan = [
     "",
     "Satu",
@@ -23,32 +23,43 @@ export function terbilangIndonesia(nominal: number): string {
   if (nominal < 12) {
     hasil = bilangan[nominal];
   } else if (nominal < 20) {
-    hasil = terbilangIndonesia(nominal - 10) + " Belas";
+    hasil = konversi(nominal - 10) + " Belas";
   } else if (nominal < 100) {
     hasil =
-      terbilangIndonesia(Math.floor(nominal / 10)) +
+      konversi(Math.floor(nominal / 10)) +
       " Puluh " +
-      terbilangIndonesia(nominal % 10);
+      konversi(nominal % 10);
   } else if (nominal < 200) {
-    hasil = " Seratus " + terbilangIndonesia(nominal - 100);
+    hasil = " Seratus " + konversi(nominal - 100);
   } else if (nominal < 1000) {
     hasil =
-      terbilangIndonesia(Math.floor(nominal / 100)) +
+      konversi(Math.floor(nominal / 100)) +
       " Ratus " +
-      terbilangIndonesia(nominal % 100);
+      konversi(nominal % 100);
   } else if (nominal < 2000) {
-    hasil = " Seribu " + terbilangIndonesia(nominal - 1000);
+    hasil = " Seribu " + konversi(nominal - 1000);
   } else if (nominal < 1000000) {
     hasil =
-      terbilangIndonesia(Math.floor(nominal / 1000)) +
+      konversi(Math.floor(nominal / 1000)) +
       " Ribu " +
-      terbilangIndonesia(nominal % 1000);
+      konversi(nominal % 1000);
   } else if (nominal < 1000000000) {
     hasil =
-      terbilangIndonesia(Math.floor(nominal / 1000000)) +
+      konversi(Math.floor(nominal / 1000000)) +
       " Juta " +
-      terbilangIndonesia(nominal % 1000000);
+      konversi(nominal % 1000000);
+  } else if (nominal < 1000000000000) {
+    hasil =
+      konversi(Math.floor(nominal / 1000000000)) +
+      " Miliar " +
+      konversi(nominal % 1000000000);
   }
 
-  return hasil.trim() + " Rupiah";
+  return hasil.trim();
+}
+
+export function terbilangIndonesia(nominal: number): string {
+  if (nominal === 0) return "Nol Rupiah";
+  const hasil = konversi(nominal);
+  return hasil + " Rupiah";
 }
