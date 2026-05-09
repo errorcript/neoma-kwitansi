@@ -2,6 +2,8 @@ import { ReceiptCard } from "@/components/ReceiptCard";
 import { db } from "@/lib/db";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function VerifyPage({ params }: { params: { hash: string } }) {
   const data = await db.getReceiptByHash(params.hash);
   

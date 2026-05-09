@@ -44,28 +44,45 @@ export const db = {
     return rows[0];
   },
   getAllLogs: async () => {
-    const { rows } = await sql`
-      SELECT * FROM donasi_logs ORDER BY created_at DESC;
-    `;
-    return rows;
+    try {
+      await createTable();
+      const { rows } = await sql`
+        SELECT * FROM donasi_logs ORDER BY created_at DESC;
+      `;
+      return rows;
+    } catch (e) {
+      console.error("DB Error in getAllLogs:", e);
+      return [];
+    }
   },
   getStats: async () => {
-    const { rows } = await sql`
-      SELECT 
-        COUNT(id) as total_count,
-        SUM(nominal) as total_amount
-      FROM donasi_logs 
-      WHERE status = 'active';
-    `;
-    return rows[0];
+    try {
+      await createTable();
+      const { rows } = await sql`
+        SELECT 
+          COUNT(id) as total_count,
+          SUM(nominal) as total_amount
+        FROM donasi_logs 
+        WHERE status = 'active';
+      `;
+      return rows[0] || { total_count: 0, total_amount: 0 };
+    } catch (e) {
+      return { total_count: 0, total_amount: 0 };
+    }
   },
   getSetting: async (key: string) => {
-    const { rows } = await sql`
-      SELECT value FROM settings WHERE key = ${key} LIMIT 1;
-    `;
-    return rows[0]?.value;
+    try {
+      await createTable();
+      const { rows } = await sql`
+        SELECT value FROM settings WHERE key = ${key} LIMIT 1;
+      `;
+      return rows[0]?.value;
+    } catch (e) {
+      return null;
+    }
   },
   updateSetting: async (key: string, value: string) => {
+    await createTable();
     await sql`
       INSERT INTO settings (key, value)
       VALUES (${key}, ${value})

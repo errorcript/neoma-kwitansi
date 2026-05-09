@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { Save, User, ShieldCheck } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const bendaharaName = await db.getSetting('bendahara_name') || 'DIDIK SUBIYANTO';
 

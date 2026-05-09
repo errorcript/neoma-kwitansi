@@ -3,6 +3,8 @@ import { formatCurrency } from "@/lib/utils";
 import { Search, Download, Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function RekapPage() {
   const logs = await db.getAllLogs();
   const stats = await db.getStats();
