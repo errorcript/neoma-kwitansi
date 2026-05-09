@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { ReceiptCard } from "@/components/ReceiptCard";
 import { Printer, Save, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { db } from "@/lib/db";
 
 export default function Home() {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
@@ -45,8 +44,19 @@ export default function Home() {
     }
     setLoading(true);
     try {
-      await db.saveReceipts(receipts);
-      alert(`Berhasil menyimpan ${receipts.length} data ke database Vercel!`);
+      const res = await fetch('/api/receipts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receipts }),
+      });
+      
+      const result = await res.json();
+      
+      if (res.ok) {
+        alert(`Berhasil menyimpan ${receipts.length} data ke database Vercel!`);
+      } else {
+        throw new Error(result.error || "Gagal simpan data");
+      }
     } catch (error: any) {
       alert(`Error: ${error.message}`);
     } finally {
