@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Lock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -58,9 +59,17 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-xs text-gray-500">
-          Lupa password? Hubungi tim IT Neoma Creative Hub.
-        </p>
+        <div className="flex flex-col gap-4 text-center">
+          <Link 
+            href="/transparansi" 
+            className="text-white/50 hover:text-brand-primary transition-all font-bold text-sm underline decoration-brand-primary/30"
+          >
+            Lihat Laporan Transparansi Publik
+          </Link>
+          <p className="text-xs text-gray-500">
+            Lupa password? Hubungi tim IT Neoma Creative Hub.
+          </p>
+        </div>
       </div>
     </div>
   );

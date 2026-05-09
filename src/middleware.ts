@@ -10,6 +10,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/login") || 
     pathname.startsWith("/api/login") || 
     pathname.startsWith("/verify") ||
+    pathname.startsWith("/transparansi") ||
     pathname.startsWith("/api/settings") ||
     pathname.startsWith("/_next") ||
     pathname === "/logo-paguyuban.png" ||
