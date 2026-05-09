@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ReceiptCard } from "@/components/ReceiptCard";
 import { Printer, Save, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,18 @@ export default function Home() {
       unique_hash: Math.random().toString(36).substring(7),
     },
   ]);
+
+  // Fetch settings on mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const res = await fetch('/api/settings');
+      const data = await res.json();
+      if (data.bendahara_name) {
+        setReceipts(prev => prev.map(r => ({ ...r, bendahara: data.bendahara_name })));
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handlePrint = () => {
     window.print();
