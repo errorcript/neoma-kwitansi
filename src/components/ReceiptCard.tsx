@@ -5,11 +5,6 @@ import { formatCurrency } from "@/lib/utils";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-import React from "react";
-import { QRCodeSVG } from "qrcode.react";
-import { terbilangIndonesia } from "@/lib/terbilang";
-import { formatCurrency } from "@/lib/utils";
-
 interface ReceiptProps {
   data: {
     no_kwitansi: string;
