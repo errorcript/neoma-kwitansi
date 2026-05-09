@@ -142,8 +142,9 @@ export default function Home() {
                         no_kwitansi: `00${i+1}/PAG-DPM/MOBSOS/05/2026`,
                         nama_donatur: nama?.trim() || "???",
                         nominal: Number(nominal?.trim()) || 0,
+                        penyerah: "",
                         keperluan: "Sumbangan Donatur Mobsos",
-                        tanggal: "09 Mei 2026",
+                        tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
                         bendahara: "DIDIK SUBIYANTO",
                         unique_hash: `bulk-${i}-${Date.now()}`,
                       };
