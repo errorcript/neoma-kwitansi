@@ -6,7 +6,7 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
-    // Audit data secara paksa dari database Neon
+    // Paksa ambil data paling fresh dari database
     const statsResult = await sql`
       SELECT 
         COUNT(*)::int as total_count, 
@@ -16,6 +16,8 @@ export async function GET() {
     
     const stats = statsResult.rows[0] || { total_count: 0, total_amount: 0 };
     
+    console.log("Fetching Public Stats:", stats); // Log untuk audit di Vercel
+
     return new NextResponse(JSON.stringify({
       success: true,
       stats: stats
@@ -23,11 +25,16 @@ export async function GET() {
       status: 200,
       headers: {
         'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'Pragma': 'no-cache',
         'Content-Type': 'application/json',
       },
     });
-  } catch (error) {
-    console.error("Public Stats Error:", error);
-    return NextResponse.json({ success: false, stats: { total_count: 0, total_amount: 0 } });
+  } catch (error: any) {
+    console.error("CRITICAL PUBLIC STATS ERROR:", error.message);
+    return NextResponse.json({ 
+      success: false, 
+      stats: { total_count: 0, total_amount: 0 },
+      error: error.message 
+    }, { status: 500 });
   }
 }
