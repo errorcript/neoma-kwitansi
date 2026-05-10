@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { ReceiptCard } from "@/components/ReceiptCard";
 import { 
-  PlusCircle, Trash2, Printer, Download, Save, 
-  CheckCircle2, AlertCircle, LogOut, LayoutDashboard, RefreshCw 
+  PlusCircle, Trash2, Printer, LayoutDashboard, Save, 
+  CheckCircle2, AlertCircle, LogOut, MessageSquare 
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -25,7 +25,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
-  // Generate default entry
   const createDefaultEntry = useCallback(() => ({
     no_kwitansi: `${Date.now()}/PAG-DPM/MOBSOS/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
     nama_donatur: "",
@@ -41,16 +40,10 @@ export default function Home() {
     setReceipts([createDefaultEntry()]);
   }, [createDefaultEntry]);
 
-  const addRow = () => {
-    setReceipts([...receipts, createDefaultEntry()]);
-  };
-
+  const addRow = () => setReceipts([...receipts, createDefaultEntry()]);
   const removeRow = (index: number) => {
-    if (receipts.length > 1) {
-      setReceipts(receipts.filter((_, i) => i !== index));
-    }
+    if (receipts.length > 1) setReceipts(receipts.filter((_, i) => i !== index));
   };
-
   const updateRow = (index: number, field: keyof ReceiptEntry, value: any) => {
     const updated = [...receipts];
     updated[index] = { ...updated[index], [field]: value };
@@ -67,50 +60,50 @@ export default function Home() {
     window.location.href = "/login";
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleShareWA = (data: ReceiptEntry) => {
+    const message = `Halo *${data.nama_donatur}*, ini adalah kwitansi resmi dari *Paguyuban Dharma Putra Mahesa* Desa Kalikebo.\n\n` +
+      `No: ${data.no_kwitansi}\n` +
+      `Nominal: Rp ${data.nominal.toLocaleString('id-ID')}\n` +
+      `Keperluan: ${data.keperluan}\n` +
+      `Tanggal: ${data.tanggal}\n\n` +
+      `Cek validitas di sini: https://kwitansi.neoma.space/verify/${data.unique_hash}\n\n` +
+      `Terima kasih atas partisipasinya! 🙏`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   const handleSave = async () => {
     const invalid = receipts.some(r => !r.nama_donatur || r.nominal <= 0);
     if (invalid) {
-      showToast("Lengkapi semua nama dan nominal donatur!", "error");
+      showToast("Lengkapi nama dan nominal donatur!", "error");
       return;
     }
-
-    const sanitize = (str: string) => str.replace(/<[^>]*>?/gm, '').trim();
-
-    const sanitizedReceipts = receipts.map(r => ({
-      ...r,
-      nama_donatur: sanitize(r.nama_donatur),
-      keperluan: sanitize(r.keperluan),
-      nominal: Math.max(0, Number(r.nominal))
-    }));
 
     setLoading(true);
     try {
       const res = await fetch('/api/receipts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receipts: sanitizedReceipts }),
+        body: JSON.stringify({ receipts }),
       });
-
-      const result = await res.json();
       if (res.ok) {
-        showToast("SEMUA DATA BERHASIL DISIMPAN! 🚀", "success");
-        // Update hash from server if any
-        if (result.saved_ids) {
-           // We keep the current view but mark as saved
-        }
+        showToast("DATA BERHASIL DISIMPAN KE DATABASE! ✅", "success");
       } else {
-        showToast(result.error || "Gagal simpan ke database", "error");
+        showToast("Gagal simpan data", "error");
       }
     } catch (err) {
-      showToast("Gangguan koneksi ke server", "error");
+      showToast("Kesalahan koneksi", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-gray-50 flex flex-col items-center relative">
-      {/* Toast */}
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center">
+      {/* Toast Notification */}
       {notification && (
         <div className={cn(
           "fixed top-6 left-1/2 -translate-x-1/2 z-[1001] px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-4",
@@ -121,110 +114,108 @@ export default function Home() {
         </div>
       )}
 
-      {/* Admin Header */}
-      <div className="w-full max-w-6xl flex justify-between items-center mb-8 no-print">
-        <Link href="/rekap" className="flex items-center gap-2 bg-white px-6 py-4 rounded-3xl shadow-sm border border-gray-100 font-black text-xs uppercase tracking-widest text-brand-secondary hover:shadow-md transition-all">
-           <LayoutDashboard className="w-4 h-4 text-brand-primary" /> Buka Rekapitulasi
-        </Link>
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-2 bg-rose-50 text-rose-600 px-6 py-4 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-rose-100 transition-all"
-        >
-           <LogOut className="w-4 h-4" /> Keluar
-        </button>
-      </div>
-
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Form Section */}
-        <section className="space-y-6 no-print">
-          <div className="bg-white p-8 rounded-[48px] shadow-xl border border-gray-100">
-            <h1 className="text-3xl font-black text-brand-secondary tracking-tighter mb-2 uppercase">Input Donasi</h1>
-            <p className="text-gray-400 text-sm font-medium mb-8">Masukkan data donatur untuk menerbitkan kwitansi resmi.</p>
-            
-            <div className="space-y-4">
-              {receipts.map((r, idx) => (
-                <div key={idx} className="p-6 bg-gray-50 rounded-3xl border border-gray-100 space-y-4 relative group">
-                  <button 
-                    onClick={() => removeRow(idx)}
-                    className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nama Donatur</label>
-                      <input 
-                        type="text" 
-                        value={r.nama_donatur}
-                        onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)}
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-primary font-bold text-brand-secondary"
-                        placeholder="Contoh: Bpk. Slamet"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nominal Donasi</label>
-                      <input 
-                        type="number" 
-                        value={r.nominal || ""}
-                        onChange={(e) => updateRow(idx, 'nominal', Number(e.target.value))}
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-primary font-black text-brand-secondary"
-                        placeholder="Rp 0"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tanda Tangan Penyerah</label>
-                    <input 
-                      type="text" 
-                      value={r.penyerah}
-                      onChange={(e) => updateRow(idx, 'penyerah', e.target.value)}
-                      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-brand-primary font-bold text-brand-secondary"
-                      placeholder="Nama yang menyerahkan"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <button 
-                onClick={addRow}
-                className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 py-4 rounded-3xl text-gray-400 font-bold hover:bg-gray-50 hover:border-brand-primary hover:text-brand-primary transition-all"
-              >
-                <PlusCircle className="w-5 h-5" /> Tambah Baris
-              </button>
-              <button 
-                onClick={handleSave}
-                disabled={loading}
-                className="flex-1 flex items-center justify-center gap-2 bg-brand-secondary text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl hover:opacity-90 disabled:opacity-50 transition-all"
-              >
-                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Simpan Database
-              </button>
-            </div>
+      {/* 🚀 SINGLE CLEAN HEADER */}
+      <header className="w-full bg-brand-secondary text-white p-6 no-print">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center">
+                <img src="/logo-paguyuban.png" alt="Logo" className="w-7 h-7 object-contain" />
+             </div>
+             <h1 className="font-black text-xl tracking-tighter">NEOMA KWITANSI</h1>
           </div>
+          <div className="flex items-center gap-4">
+            <Link href="/rekap" className="flex items-center gap-2 hover:text-brand-primary transition-all font-bold text-sm">
+               <LayoutDashboard className="w-4 h-4" /> Rekapitulasi
+            </Link>
+            <button onClick={handleLogout} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-all font-bold text-sm text-rose-300">
+               <LogOut className="w-4 h-4" /> Keluar
+            </button>
+          </div>
+        </div>
+      </header>
 
-          <div className="bg-brand-primary/10 p-8 rounded-[48px] border border-brand-primary/20">
-             <div className="flex items-center gap-4 text-brand-secondary">
-                <Printer className="w-8 h-8" />
-                <div>
-                   <h3 className="font-black text-lg leading-none uppercase">Cetak Kwitansi</h3>
-                   <p className="text-sm font-medium opacity-70">Gunakan Ctrl + P untuk mencetak preview di samping.</p>
-                </div>
+      <div className="w-full max-w-7xl p-6 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+        
+        {/* Form Entry */}
+        <section className="space-y-6 no-print">
+          <div className="bg-white p-8 rounded-[40px] shadow-xl border border-gray-100">
+             <h2 className="text-2xl font-black text-brand-secondary mb-6 uppercase tracking-tighter">Input Donasi</h2>
+             
+             <div className="space-y-6">
+                {receipts.map((r, idx) => (
+                  <div key={idx} className="p-6 bg-gray-50 rounded-3xl border border-gray-100 space-y-4 relative group">
+                    <button onClick={() => removeRow(idx)} className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nama Donatur</label>
+                        <input type="text" value={r.nama_donatur} onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-bold text-sm" placeholder="Contoh: Bpk. Slamet" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nominal (Rp)</label>
+                        <input type="number" value={r.nominal || ""} onChange={(e) => updateRow(idx, 'nominal', Number(e.target.value))} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-black text-sm" placeholder="0" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Untuk Pembayaran</label>
+                        <input type="text" value={r.keperluan} onChange={(e) => updateRow(idx, 'keperluan', e.target.value)} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-bold text-sm" placeholder="Sumbangan Mobsos" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Penyerah</label>
+                        <input type="text" value={r.penyerah} onChange={(e) => updateRow(idx, 'penyerah', e.target.value)} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-bold text-sm" placeholder="Nama Penyerah" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+             </div>
+
+             <div className="mt-8 flex gap-4">
+                <button onClick={addRow} className="flex-1 border-2 border-dashed border-gray-200 py-4 rounded-3xl text-gray-400 font-bold hover:border-brand-primary hover:text-brand-primary transition-all">
+                   <PlusCircle className="w-5 h-5 mx-auto" />
+                </button>
+                <button onClick={handleSave} disabled={loading} className="flex-[2] bg-brand-secondary text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-lg hover:opacity-90 disabled:opacity-50 transition-all">
+                   {loading ? "Menyimpan..." : "Simpan Ke Database"}
+                </button>
              </div>
           </div>
+
+          <button 
+            onClick={handlePrint}
+            className="w-full bg-brand-primary text-brand-secondary p-8 rounded-[40px] flex items-center justify-center gap-4 hover:opacity-90 transition-all shadow-xl shadow-brand-primary/20"
+          >
+             <Printer className="w-8 h-8" />
+             <div className="text-left">
+                <p className="font-black text-xl leading-none">CETAK SEMUA</p>
+                <p className="text-[10px] font-bold opacity-60 uppercase tracking-widest mt-1">Klik untuk memunculkan dialog print</p>
+             </div>
+          </button>
         </section>
 
         {/* Preview Section */}
-        <section className="print-container space-y-0 overflow-x-auto pb-12">
-          <h2 className="text-xl font-bold text-gray-400 mb-4 no-print uppercase tracking-[0.2em] text-xs">Preview Dokumentasi</h2>
-          <div className="flex flex-col gap-0 border border-gray-200 bg-white min-w-[210mm] lg:min-w-0 shadow-2xl lg:shadow-none">
+        <section className="space-y-4">
+          <h2 className="text-sm font-black text-gray-400 uppercase tracking-[0.2em] no-print">Preview Dokumentasi</h2>
+          <div className="print-container flex flex-col gap-2 overflow-hidden lg:overflow-visible">
             {receipts.map((data, idx) => (
-              <ReceiptCard key={data.unique_hash || idx} data={data} />
+              <div key={idx} className="relative group">
+                <div className="transform scale-[0.6] sm:scale-[0.8] lg:scale-100 origin-top-left transition-transform duration-300">
+                  <ReceiptCard data={data} />
+                </div>
+                {/* WA Button Overlay for each receipt */}
+                <button 
+                  onClick={() => handleShareWA(data)}
+                  className="absolute bottom-4 right-4 no-print bg-emerald-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg hover:bg-emerald-700 transition-all font-bold text-xs"
+                >
+                   <MessageSquare className="w-4 h-4" /> Share WA
+                </button>
+              </div>
             ))}
           </div>
         </section>
+
       </div>
     </main>
   );
