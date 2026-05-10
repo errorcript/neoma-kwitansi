@@ -2,21 +2,32 @@ import { sql } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
+    // Audit data secara paksa dari database Neon
     const statsResult = await sql`
       SELECT 
         COUNT(*)::int as total_count, 
-        SUM(nominal)::int as total_amount 
+        COALESCE(SUM(nominal), 0)::int as total_amount 
       FROM receipts
     `;
     
-    return NextResponse.json({
+    const stats = statsResult.rows[0] || { total_count: 0, total_amount: 0 };
+    
+    return new NextResponse(JSON.stringify({
       success: true,
-      stats: statsResult.rows[0] || { total_count: 0, total_amount: 0 }
+      stats: stats
+    }), {
+      status: 200,
+      headers: {
+        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error) {
+    console.error("Public Stats Error:", error);
     return NextResponse.json({ success: false, stats: { total_count: 0, total_amount: 0 } });
   }
 }

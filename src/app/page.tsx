@@ -112,105 +112,105 @@ export default function Home() {
         
         {/* Form Entry */}
         <section className="space-y-6 no-print">
-          <div className="bg-white p-8 rounded-[40px] shadow-xl border border-gray-100">
-             <div className="flex items-center justify-between mb-8">
+          <div className="bg-white p-10 rounded-[48px] shadow-2xl border border-gray-100">
+             <div className="flex items-center justify-between mb-10">
                 <div>
                    <h2 className="text-3xl font-black text-brand-secondary uppercase tracking-tighter">Input Donasi</h2>
-                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Data Entry Terminal</p>
+                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 italic">Dharma Putra Mahesa Terminal</p>
                 </div>
-                <div className="bg-brand-primary/10 p-3 rounded-2xl">
+                <div className="bg-brand-primary/10 p-4 rounded-2xl shadow-inner">
                    <PlusCircle className="w-6 h-6 text-brand-primary" />
                 </div>
              </div>
              
-             <div className="space-y-6">
+             <div className="space-y-8">
                 {receipts.map((r, idx) => (
-                  <div key={idx} className="p-6 bg-gray-50 rounded-3xl border border-gray-100 space-y-4 relative group hover:border-brand-primary/30 transition-all">
-                    <button onClick={() => removeRow(idx)} className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+                  <div key={idx} className="p-8 bg-gray-50/50 rounded-[32px] border-2 border-gray-100 space-y-6 relative group hover:border-brand-primary transition-all shadow-sm">
+                    <button onClick={() => removeRow(idx)} className="absolute top-4 right-4 p-2 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all bg-white rounded-full shadow-sm">
                       <Trash2 className="w-4 h-4" />
                     </button>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nama Donatur</label>
-                        <input type="text" value={r.nama_donatur} onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)} className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-100 outline-none focus:border-brand-primary font-bold text-sm transition-all" placeholder="Contoh: Bpk. Slamet" />
+                        <input type="text" value={r.nama_donatur} onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)} className="w-full px-6 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-brand-primary font-bold text-sm transition-all shadow-sm" placeholder="Contoh: Bpk. Slamet" />
                       </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nominal (Rp)</label>
-                        <input type="number" value={r.nominal || ""} onChange={(e) => updateRow(idx, 'nominal', Number(e.target.value))} className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-100 outline-none focus:border-brand-primary font-black text-sm transition-all" placeholder="0" />
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nominal Donasi (Rp)</label>
+                        <input type="number" value={r.nominal || ""} onChange={(e) => updateRow(idx, 'nominal', Number(e.target.value))} className="w-full px-6 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-brand-primary font-black text-sm transition-all shadow-sm" placeholder="0" />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Untuk Pembayaran</label>
-                        <input type="text" value={r.keperluan} onChange={(e) => updateRow(idx, 'keperluan', e.target.value)} className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-100 outline-none focus:border-brand-primary font-bold text-sm transition-all" placeholder="Sumbangan Mobsos" />
+                        <input type="text" value={r.keperluan} onChange={(e) => updateRow(idx, 'keperluan', e.target.value)} className="w-full px-6 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-brand-primary font-bold text-sm transition-all shadow-sm" placeholder="Sumbangan Mobsos" />
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Tanda Tangan Penyerah</label>
-                        <input type="text" value={r.penyerah} onChange={(e) => updateRow(idx, 'penyerah', e.target.value)} className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-100 outline-none focus:border-brand-primary font-bold text-sm transition-all" placeholder="Nama Penyerah" />
+                        <input type="text" value={r.penyerah} onChange={(e) => updateRow(idx, 'penyerah', e.target.value)} className="w-full px-6 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-brand-primary font-bold text-sm transition-all shadow-sm" placeholder="Nama Penyerah" />
                       </div>
                     </div>
                   </div>
                 ))}
              </div>
 
-             <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button onClick={addRow} className="flex-1 border-2 border-dashed border-gray-200 py-5 rounded-3xl text-gray-400 font-bold hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center gap-2">
-                   <PlusCircle className="w-5 h-5" /> Tambah Baris
+             <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                <button onClick={addRow} className="flex-1 border-2 border-dashed border-gray-200 py-6 rounded-3xl text-gray-400 font-bold hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center gap-2 group">
+                   <PlusCircle className="w-5 h-5 group-hover:scale-125 transition-transform" /> Tambah Baris
                 </button>
-                <button onClick={handleSave} disabled={loading} className="flex-[2] bg-brand-secondary text-white py-5 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-secondary/20 hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
-                   {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Simpan Database
+                <button onClick={handleSave} disabled={loading} className="flex-[2] bg-brand-secondary text-white py-6 rounded-3xl font-black uppercase tracking-widest text-xs shadow-2xl shadow-brand-secondary/30 hover:bg-brand-secondary/90 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+                   {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Simpan Ke Database
                 </button>
              </div>
           </div>
 
           <button 
             onClick={handlePrint}
-            className="w-full bg-brand-primary text-brand-secondary p-8 rounded-[40px] flex items-center justify-center gap-6 hover:opacity-95 transition-all shadow-xl shadow-brand-primary/20 group"
+            className="w-full bg-brand-primary text-brand-secondary p-10 rounded-[48px] flex items-center justify-center gap-8 hover:opacity-95 transition-all shadow-2xl shadow-brand-primary/30 group"
           >
-             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Printer className="w-8 h-8" />
+             <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                <Printer className="w-10 h-10" />
              </div>
              <div className="text-left">
-                <p className="font-black text-2xl leading-none">CETAK SEMUA</p>
-                <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-1">
+                <p className="font-black text-3xl leading-none">CETAK SEMUA</p>
+                <p className="text-[10px] font-bold opacity-80 uppercase tracking-widest mt-2 bg-brand-secondary/10 px-2 py-1 rounded inline-block">
                   Format A4 • Muat 3 kwitansi per lembar
                 </p>
              </div>
           </button>
         </section>
 
-        {/* Preview Section */}
-        <section className="space-y-6">
+        {/* Preview Section - Fixed Clipping */}
+        <section className="space-y-6 lg:sticky lg:top-28">
           <div className="flex items-center justify-between no-print">
-            <h2 className="text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Preview Dokumentasi</h2>
-            <div className="h-px flex-grow bg-gray-200 mx-4" />
+            <h2 className="text-sm font-black text-gray-400 uppercase tracking-[0.3em] italic">Digital Documentation</h2>
+            <div className="h-1 flex-grow bg-gray-200/50 mx-4 rounded-full" />
           </div>
           
-          <div className="print-container flex flex-col items-center gap-4 w-full">
+          <div className="print-container flex flex-col items-center gap-6 w-full">
             {receipts.map((data, idx) => (
-              <div key={idx} className="relative w-full flex flex-col items-center group">
-                {/* Visual Preview Container (Responsive Scale) */}
-                <div className="w-full overflow-hidden bg-gray-100 rounded-[32px] p-6 border border-gray-200 shadow-inner no-print flex justify-center">
-                   <div className="min-w-[210mm] flex justify-center">
-                      <div className="transform scale-[0.4] sm:scale-[0.55] md:scale-[0.75] lg:scale-[0.65] xl:scale-[0.85] origin-top transition-transform">
+              <div key={idx} className="relative w-full flex flex-col items-center group animate-in zoom-in-95 duration-300">
+                {/* Fixed Preview Box with no clipping */}
+                <div className="w-full overflow-visible bg-gray-200/30 rounded-[40px] p-10 border border-gray-200/50 shadow-inner no-print flex justify-center">
+                   <div className="min-w-[210mm] flex justify-center p-4">
+                      <div className="transform scale-[0.4] sm:scale-[0.5] md:scale-[0.7] lg:scale-[0.6] xl:scale-[0.85] origin-top transition-all duration-500 shadow-2xl">
                          <ReceiptCard data={data} />
                       </div>
                    </div>
                 </div>
 
-                {/* Print only view (Actual Size) */}
+                {/* Print view */}
                 <div className="hidden print:block w-[210mm]">
                    <ReceiptCard data={data} />
                 </div>
 
-                {/* WA Button Overlay */}
+                {/* Share WA */}
                 <button 
                   onClick={() => handleShareWA(data)}
-                  className="absolute bottom-10 right-10 no-print bg-emerald-600 text-white px-6 py-3 rounded-2xl flex items-center gap-2 shadow-2xl hover:bg-emerald-700 transition-all font-black text-xs uppercase tracking-widest"
+                  className="absolute bottom-12 right-12 no-print bg-emerald-600 text-white px-8 py-4 rounded-[20px] flex items-center gap-3 shadow-2xl hover:bg-emerald-700 transition-all font-black text-xs uppercase tracking-widest animate-in slide-in-from-bottom-2"
                 >
-                   <MessageSquare className="w-4 h-4" /> Share WhatsApp
+                   <MessageSquare className="w-5 h-5" /> Share WhatsApp
                 </button>
               </div>
             ))}
