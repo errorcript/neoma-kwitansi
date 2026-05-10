@@ -22,26 +22,43 @@ export const Header = () => {
           <span className="font-black tracking-tighter text-lg hidden sm:inline">NEOMA KWITANSI</span>
         </Link>
 
-        <nav className="flex items-center gap-1 sm:gap-4">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-all",
-                  pathname === item.path 
-                    ? "bg-brand-primary text-brand-secondary" 
-                    : "text-gray-300 hover:text-white hover:bg-white/10"
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="hidden xs:inline">{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="flex items-center gap-2">
+          <nav className="flex items-center gap-1 sm:gap-4">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-all",
+                    pathname === item.path 
+                      ? "bg-brand-primary text-brand-secondary" 
+                      : "text-gray-300 hover:text-white hover:bg-white/10"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="hidden xs:inline">{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+          
+          <div className="w-px h-6 bg-white/10 mx-2 hidden sm:block" />
+
+          <button
+            onClick={async () => {
+              if (confirm("Logout sekarang, bre?")) {
+                await fetch("/api/logout", { method: "POST" });
+                window.location.href = "/login";
+              }
+            }}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
       </div>
     </header>
   );

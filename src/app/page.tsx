@@ -42,10 +42,17 @@ export default function Home() {
   };
 
   const handleSave = async () => {
-    if (receipts[0].nama_donatur === '' && mode === 'single') {
-      alert("Isi nama donatur dulu bre! 🙏");
+    // Validasi dasar
+    if (mode === 'single' && !receipts[0].nama_donatur) {
+      alert("Isi nama donatur dulu, bre! 🙏");
       return;
     }
+    
+    if (mode === 'bulk' && (receipts.length === 0 || !receipts[0].nama_donatur)) {
+      alert("Data bulk kosong atau format salah! 🥺");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/receipts', {
@@ -53,14 +60,17 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ receipts }),
       });
+
       const result = await res.json();
+
       if (res.ok) {
-        alert(`Berhasil menyimpan ${receipts.length} data kwitansi ke database.`);
+        alert(`Berhasil menyimpan ${receipts.length} kwitansi! ✅`);
       } else {
-        throw new Error(result.error || "Gagal simpan data");
+        alert(`Gagal simpan: ${result.error || 'Server error'}`);
       }
-    } catch (error: any) {
-      alert(`Error: ${error.message}`);
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan koneksi ke server.");
     } finally {
       setLoading(false);
     }
