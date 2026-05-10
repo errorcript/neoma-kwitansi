@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Lock, ArrowRight } from "lucide-react";
+import { ShieldCheck, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function LoginPage() {
@@ -12,9 +12,7 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Updated password to match user request
     if (password === "alfana123") {
-      // Set a simple cookie (not secure but works for this level of req)
       document.cookie = "admin_auth=true; path=/; max-age=86400"; // 24 hours
       router.push("/");
     } else {
@@ -24,55 +22,76 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-brand-secondary flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-10">
-         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary rounded-full blur-[120px]" />
-         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand-primary rounded-full blur-[120px]" />
-      </div>
-
-      <div className="max-w-md w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-[48px] p-10 shadow-2xl relative z-10">
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 bg-brand-primary rounded-3xl flex items-center justify-center shadow-lg shadow-brand-primary/20 mb-6">
-            <ShieldCheck className="w-10 h-10 text-brand-secondary" />
-          </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter text-center">ADMIN PORTAL</h1>
-          <p className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mt-2">Paguyuban Dharma Putra Mahesa</p>
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
+        {/* Header Branding */}
+        <div className="bg-brand-primary p-10 text-center relative overflow-hidden">
+           {/* Pattern Decor */}
+           <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full -ml-12 -mb-12" />
+           </div>
+           
+           <div className="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center shadow-lg mb-6 relative z-10">
+              <img src="/logo-paguyuban.png" alt="Logo" className="w-14 h-14 object-contain" />
+           </div>
+           <h1 className="text-2xl font-black text-brand-secondary leading-tight relative z-10 uppercase tracking-tighter">
+              Dharma Putra Mahesa
+           </h1>
+           <p className="text-brand-secondary/60 text-[10px] font-bold uppercase tracking-widest mt-1 relative z-10">
+              Sistem Kwitansi Digital
+           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="relative">
-            <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-            <input 
-              type="password" 
-              placeholder="Password Akses" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={cn(
-                "w-full bg-white/10 border border-white/20 rounded-3xl py-5 pl-14 pr-6 text-white placeholder:text-white/30 outline-none focus:ring-2 focus:ring-brand-primary transition-all font-bold",
-                error && "border-rose-500 ring-2 ring-rose-500 animate-shake"
-              )}
-            />
+        {/* Login Form */}
+        <div className="p-10">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Password Akses Admin</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+                <input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoFocus
+                  className={cn(
+                    "w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-12 pr-6 text-brand-secondary font-bold outline-none focus:border-brand-primary focus:bg-white transition-all",
+                    error && "border-rose-500 bg-rose-50 animate-shake"
+                  )}
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 text-rose-600 text-xs font-bold animate-in fade-in slide-in-from-top-1">
+                <AlertCircle className="w-4 h-4" />
+                <span>Password salah! Silakan coba lagi.</span>
+              </div>
+            )}
+
+            <button 
+              type="submit"
+              className="w-full bg-brand-secondary text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-brand-secondary/90 transition-all shadow-lg shadow-brand-secondary/20 uppercase text-xs tracking-widest"
+            >
+              Masuk Dashboard <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          <div className="mt-10 pt-6 border-t border-gray-50 text-center">
+            <p className="text-[9px] text-gray-300 font-bold uppercase tracking-widest">
+              Developed by Neoma Space &copy; 2026
+            </p>
           </div>
-
-          <button 
-            type="submit"
-            className="w-full bg-brand-primary text-brand-secondary font-black py-5 rounded-3xl flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-xl shadow-brand-primary/20"
-          >
-            MASUK SISTEM <ArrowRight className="w-5 h-5" />
-          </button>
-        </form>
-
-        <p className="text-center text-white/30 text-[10px] font-bold uppercase tracking-widest mt-10">
-          Sistem Keamanan Neoma v2.0
-        </p>
+        </div>
       </div>
 
       <style jsx global>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-10px); }
-          75% { transform: translateX(10px); }
+          25% { transform: translateX(-8px); }
+          75% { transform: translateX(8px); }
         }
         .animate-shake {
           animation: shake 0.2s ease-in-out 0s 2;
