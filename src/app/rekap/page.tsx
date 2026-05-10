@@ -18,6 +18,7 @@ export default function RekapPage() {
   };
 
   const fetchData = async () => {
+    console.log("Fetching data...");
     setLoading(true);
     try {
       const res = await fetch('/api/receipts/list', { cache: 'no-store' });
@@ -39,8 +40,14 @@ export default function RekapPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Yakin mau hapus data ini? Data bakal hilang permanen!")) return;
+    console.log("handleDelete called for ID:", id);
+    const yakin = window.confirm("Yakin mau hapus data ini? Data bakal hilang permanen!");
+    if (!yakin) {
+      console.log("Penghapusan dibatalkan user.");
+      return;
+    }
     
+    console.log("Proceeding to delete ID:", id);
     try {
       const res = await fetch('/api/receipts/delete', {
         method: 'POST',
@@ -49,15 +56,18 @@ export default function RekapPage() {
       });
       
       const result = await res.json();
+      console.log("Delete response:", result);
       
       if (res.ok) {
         showToast("Data berhasil dihapus! 🗑️", "success");
         setLogs(prev => prev.filter(log => log.id !== id));
-        fetchData(); // Refresh stats juga
+        fetchData(); 
       } else {
+        console.error("Delete failed:", result.error);
         showToast(result.error || "Gagal menghapus data", "error");
       }
     } catch (err) {
+      console.error("Network error during delete:", err);
       showToast("Terjadi kesalahan koneksi", "error");
     }
   };
@@ -179,15 +189,12 @@ export default function RekapPage() {
                         </button>
                         <button 
                           type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleDelete(log.id);
-                          }}
-                          className="p-2 text-gray-400 hover:text-red-500 transition-all cursor-pointer"
+                          onClick={() => handleDelete(log.id)}
+                          className="p-2 text-rose-300 hover:text-rose-600 transition-all cursor-pointer relative z-50"
+                          style={{ minWidth: '40px', minHeight: '40px' }}
                           title="Hapus Data Kwitansi"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5 mx-auto" />
                         </button>
                       </td>
                     </tr>
