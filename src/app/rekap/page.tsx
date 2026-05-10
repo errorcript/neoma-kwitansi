@@ -47,7 +47,7 @@ export default function RekapPage() {
   }, [mounted, fetchData]);
 
   const executeDelete = async () => {
-    if (pinInput !== "1234") {
+    if (pinInput !== "2804") {
       showToast("PIN SALAH! ❌", "error");
       setPinInput("");
       return;
@@ -116,7 +116,7 @@ export default function RekapPage() {
               
               <input 
                 type="password" 
-                placeholder="PIN (Default: 1234)" 
+                placeholder="PIN ADMIN" 
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value)}
                 autoFocus
