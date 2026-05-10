@@ -9,18 +9,36 @@ export default function Home() {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
-  const [receipts, setReceipts] = useState([
-    {
-      no_kwitansi: "001/PAG-DPM/MOBSOS/05/2026",
-      nama_donatur: "",
-      nominal: 0,
-      penyerah: "",
-      keperluan: "Sumbangan Donatur Mobsos",
-      tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-      bendahara: "DIDIK SUBIYANTO",
-      unique_hash: Math.random().toString(36).substring(7),
-    },
-  ]);
+  const [receipts, setReceipts] = useState<any[]>([]);
+
+  const generateUniqueId = () => {
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  };
+
+  const generateNoKwitansi = (index: number = 0) => {
+    const date = new Date();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const ts = date.getTime().toString().slice(-4);
+    const random = Math.floor(100 + Math.random() * 900);
+    return `${random}${ts}${index}/PAG-DPM/MOBSOS/${month}/${year}`;
+  };
+
+  // Initialize first receipt
+  useEffect(() => {
+    setReceipts([
+      {
+        no_kwitansi: generateNoKwitansi(1),
+        nama_donatur: "",
+        nominal: 0,
+        penyerah: "",
+        keperluan: "Sumbangan Donatur Mobsos",
+        tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        bendahara: "DIDIK SUBIYANTO",
+        unique_hash: generateUniqueId(),
+      }
+    ]);
+  }, []);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setNotification({ message, type });
@@ -48,6 +66,8 @@ export default function Home() {
   };
 
   const handleSave = async () => {
+    if (receipts.length === 0) return;
+
     // Validasi dasar
     if (mode === 'single' && !receipts[0].nama_donatur) {
       showToast("Isi nama donatur dulu, bre! 🙏", "error");
@@ -71,16 +91,32 @@ export default function Home() {
 
       if (res.ok) {
         showToast(`Berhasil menyimpan ${receipts.length} kwitansi! ✅`, "success");
+        // Reset form setelah simpan
+        if (mode === 'single') {
+          setReceipts([{
+            ...receipts[0],
+            no_kwitansi: generateNoKwitansi(Math.floor(Math.random() * 100)),
+            nama_donatur: "",
+            nominal: 0,
+            unique_hash: generateUniqueId(),
+          }]);
+        }
       } else {
         showToast(`Gagal simpan: ${result.error || 'Server error'}`, "error");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      showToast("Terjadi kesalahan koneksi ke server.", "error");
+      showToast(`Error: ${error.message || 'Cek koneksi internet lu bre'}`, "error");
     } finally {
       setLoading(false);
     }
   };
+
+  if (receipts.length === 0) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
+    </div>
+  );
 
   return (
     <main className="min-h-screen p-2 md:p-8 bg-gray-100 relative overflow-hidden">
