@@ -36,6 +36,9 @@ export default function Home() {
   }), []);
 
   useEffect(() => {
+    fetch('/api/public/stats', { cache: 'no-store' })
+      .then(res => res.json())
+      .catch(console.error);
     setReceipts([createDefaultEntry()]);
   }, [createDefaultEntry]);
 
@@ -183,10 +186,10 @@ export default function Home() {
             {receipts.map((data, idx) => (
               <div key={idx} className="relative w-full flex flex-col items-center group">
                 
-                {/* 🛡️ SAFE PREVIEW BOX (Scrollable on small screens, Scaled on large) */}
-                <div className="w-full bg-white rounded-[40px] border border-gray-100 shadow-2xl p-4 sm:p-8 no-print overflow-x-auto lg:overflow-visible">
-                   <div className="min-w-[210mm] lg:min-w-0 flex justify-center">
-                      <div className="transform scale-[0.45] sm:scale-[0.6] md:scale-[0.8] lg:scale-[0.6] xl:scale-[0.8] 2xl:scale-100 origin-top transition-transform duration-300">
+                {/* 🛡️ STABLE PREVIEW BOX */}
+                <div className="w-full bg-white rounded-[40px] border border-gray-100 shadow-2xl p-6 sm:p-10 no-print overflow-x-auto">
+                   <div className="min-w-[210mm] flex justify-center py-8">
+                      <div className="shadow-2xl hover:scale-[1.02] transition-transform duration-500">
                          <ReceiptCard data={data} />
                       </div>
                    </div>
