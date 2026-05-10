@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { formatCurrency } from "@/lib/utils";
-import { Search, Download, Trash2, ExternalLink, RefreshCw } from "lucide-react";
+import { formatCurrency, cn } from "@/lib/utils";
+import { Search, Trash2, ExternalLink, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 export default function RekapPage() {
@@ -10,17 +10,25 @@ export default function RekapPage() {
   const [stats, setStats] = useState({ total_count: 0, total_amount: 0 });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Panggil API rekap (kita buat API baru biar client-side bisa fetch)
-      const res = await fetch('/api/receipts/list');
+      const res = await fetch('/api/receipts/list', { cache: 'no-store' });
       const data = await res.json();
-      setLogs(data.logs || []);
-      setStats(data.stats || { total_count: 0, total_amount: 0 });
+      if (res.ok) {
+        setLogs(data.logs || []);
+        setStats(data.stats || { total_count: 0, total_amount: 0 });
+      }
     } catch (err) {
       console.error("Gagal ambil data rekap", err);
+      showToast("Gagal mengambil data dari server", "error");
     } finally {
       setLoading(false);
     }
@@ -31,7 +39,7 @@ export default function RekapPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Yakin mau hapus data ini, bre? Data bakal ilang permanen loh!")) return;
+    if (!confirm("Yakin mau hapus data ini? Data bakal hilang permanen!")) return;
     
     try {
       const res = await fetch('/api/receipts/delete', {
@@ -40,32 +48,50 @@ export default function RekapPage() {
         body: JSON.stringify({ id }),
       });
       
+      const result = await res.json();
+      
       if (res.ok) {
-        // Update state lokal biar gak usah refresh
-        setLogs(logs.filter(log => log.id !== id));
-        fetchData(); // Refresh stats juga
+        showToast("Data berhasil dihapus! 🗑️", "success");
+        setLogs(prev => prev.filter(log => log.id !== id));
+        // Update stats lokal sederhana
+        setStats(prev => ({
+          total_count: prev.total_count - 1,
+          total_amount: prev.total_amount // Nominalnya susah dikurangin manual tanpa re-fetch
+        }));
+        fetchData(); // Tetap re-fetch buat akurasi nominal
       } else {
-        alert("Gagal hapus data!");
+        showToast(result.error || "Gagal menghapus data", "error");
       }
     } catch (err) {
-      alert("Error pas hapus data!");
+      showToast("Terjadi kesalahan koneksi", "error");
     }
   };
 
   const filteredLogs = logs.filter(log => 
-    log.nama_donatur.toLowerCase().includes(search.toLowerCase()) ||
-    log.no_kwitansi.toLowerCase().includes(search.toLowerCase())
+    (log.nama_donatur?.toLowerCase() || "").includes(search.toLowerCase()) ||
+    (log.no_kwitansi?.toLowerCase() || "").includes(search.toLowerCase())
   );
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-gray-50">
+    <main className="min-h-screen p-4 md:p-8 bg-gray-50 relative overflow-hidden">
+      {/* Toast Notification */}
+      {notification && (
+        <div className={cn(
+          "fixed top-20 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300",
+          notification.type === 'success' ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
+        )}>
+          {notification.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+          <span className="font-bold text-sm uppercase tracking-wider">{notification.message}</span>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Stats Header */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-brand-primary text-brand-secondary p-6 rounded-3xl shadow-lg border border-brand-primary/20">
             <p className="text-xs font-bold uppercase opacity-70">Total Donasi Masuk</p>
-            <h2 className="text-4xl font-black">{formatCurrency(stats.total_amount)}</h2>
+            <h2 className="text-4xl font-black tracking-tight">{formatCurrency(stats.total_amount)}</h2>
           </div>
           <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 flex items-center justify-between">
             <div>
@@ -75,6 +101,7 @@ export default function RekapPage() {
             <button 
               onClick={fetchData}
               className={cn("bg-gray-100 p-4 rounded-2xl text-brand-secondary hover:bg-gray-200 transition-all", loading && "animate-spin")}
+              title="Refresh Data"
             >
               <RefreshCw className="w-6 h-6" />
             </button>
@@ -116,7 +143,7 @@ export default function RekapPage() {
                 <tbody className="divide-y text-sm">
                   {filteredLogs.map((log: any) => (
                     <tr key={log.id} className="hover:bg-gray-50 transition-all group">
-                      <td className="px-6 py-4 font-mono font-bold text-xs text-brand-primary">{log.no_kwitansi}</td>
+                      <td className="px-6 py-4 font-mono font-bold text-[10px] text-brand-primary">{log.no_kwitansi}</td>
                       <td className="px-6 py-4 font-bold text-brand-secondary uppercase">{log.nama_donatur}</td>
                       <td className="px-6 py-4 text-right font-black text-brand-secondary">{formatCurrency(Number(log.nominal))}</td>
                       <td className="px-6 py-4 text-gray-400">{new Date(log.created_at).toLocaleDateString('id-ID')}</td>
@@ -124,12 +151,14 @@ export default function RekapPage() {
                         <Link 
                           href={`/verify/${log.unique_hash}`}
                           className="p-2 text-gray-400 hover:text-brand-primary transition-all"
+                          title="Lihat Verifikasi"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </Link>
                         <button 
                           onClick={() => handleDelete(log.id)}
                           className="p-2 text-gray-400 hover:text-red-500 transition-all"
+                          title="Hapus Data"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -151,9 +180,4 @@ export default function RekapPage() {
       </div>
     </main>
   );
-}
-
-// Utility for cn if not imported properly
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
 }
