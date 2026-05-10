@@ -5,6 +5,8 @@ import { ReceiptCard } from "@/components/ReceiptCard";
 import { Printer, Save, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [loading, setLoading] = useState(false);
