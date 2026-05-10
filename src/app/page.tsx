@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 export default function Home() {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [receipts, setReceipts] = useState([
     {
       no_kwitansi: "001/PAG-DPM/MOBSOS/05/2026",
@@ -20,6 +21,11 @@ export default function Home() {
       unique_hash: Math.random().toString(36).substring(7),
     },
   ]);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 4000);
+  };
 
   // Fetch settings on mount
   useEffect(() => {
@@ -44,12 +50,12 @@ export default function Home() {
   const handleSave = async () => {
     // Validasi dasar
     if (mode === 'single' && !receipts[0].nama_donatur) {
-      alert("Isi nama donatur dulu, bre! 🙏");
+      showToast("Isi nama donatur dulu, bre! 🙏", "error");
       return;
     }
     
     if (mode === 'bulk' && (receipts.length === 0 || !receipts[0].nama_donatur)) {
-      alert("Data bulk kosong atau format salah! 🥺");
+      showToast("Data bulk kosong atau format salah! 🥺", "error");
       return;
     }
 
@@ -64,20 +70,33 @@ export default function Home() {
       const result = await res.json();
 
       if (res.ok) {
-        alert(`Berhasil menyimpan ${receipts.length} kwitansi! ✅`);
+        showToast(`Berhasil menyimpan ${receipts.length} kwitansi! ✅`, "success");
       } else {
-        alert(`Gagal simpan: ${result.error || 'Server error'}`);
+        showToast(`Gagal simpan: ${result.error || 'Server error'}`, "error");
       }
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan koneksi ke server.");
+      showToast("Terjadi kesalahan koneksi ke server.", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen p-2 md:p-8 bg-gray-100">
+    <main className="min-h-screen p-2 md:p-8 bg-gray-100 relative overflow-hidden">
+      {/* Toast Notification */}
+      {notification && (
+        <div className={cn(
+          "fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-4 duration-300",
+          notification.type === 'success' ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
+        )}>
+          <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center font-bold">
+            {notification.type === 'success' ? '✓' : '!'}
+          </div>
+          <span className="font-bold text-sm uppercase tracking-wider">{notification.message}</span>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
         
         {/* Input Form Section (No Print) */}
@@ -106,6 +125,7 @@ export default function Home() {
                     type="text" 
                     className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
                     placeholder="Contoh: Haji Lulung"
+                    value={receipts[0].nama_donatur}
                     onChange={(e) => {
                       const newReceipts = [...receipts];
                       newReceipts[0].nama_donatur = e.target.value;
@@ -121,6 +141,7 @@ export default function Home() {
                       type="number" 
                       className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
                       placeholder="100000"
+                      value={receipts[0].nominal || ''}
                       onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) => {
                         const val = e.target.value === '' ? 0 : Number(e.target.value);
@@ -136,6 +157,7 @@ export default function Home() {
                       type="text" 
                       className="block w-full rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-brand-primary p-3 border text-brand-secondary font-bold"
                       placeholder="Nama Admin/Donatur"
+                      value={receipts[0].penyerah}
                       onChange={(e) => {
                         const newReceipts = [...receipts];
                         newReceipts[0].penyerah = e.target.value;
@@ -159,15 +181,17 @@ export default function Home() {
                   onChange={(e) => {
                     const lines = e.target.value.split('\n').filter(l => l.trim() !== '');
                     const newReceipts = lines.map((line, i) => {
-                      const [nama, nominal] = line.split(',');
+                      const parts = line.split(',');
+                      const nama = parts[0]?.trim() || "???";
+                      const nominal = Number(parts[1]?.trim()) || 0;
                       return {
                         no_kwitansi: `00${i+1}/PAG-DPM/MOBSOS/05/2026`,
-                        nama_donatur: nama?.trim() || "???",
-                        nominal: Number(nominal?.trim()) || 0,
+                        nama_donatur: nama,
+                        nominal: nominal,
                         penyerah: "",
-                        keperluan: "Sumbangan Donatur Mobsos",
+                        keperluan: receipts[0].keperluan,
                         tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                        bendahara: "DIDIK SUBIYANTO",
+                        bendahara: receipts[0].bendahara,
                         unique_hash: `bulk-${i}-${Date.now()}`,
                       };
                     });
@@ -183,7 +207,7 @@ export default function Home() {
                 <input 
                   type="text" 
                   className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary p-2 border text-brand-secondary"
-                  defaultValue="Sumbangan Donatur Mobsos"
+                  value={receipts[0].keperluan}
                   onChange={(e) => {
                     const newReceipts = receipts.map(r => ({ ...r, keperluan: e.target.value }));
                     setReceipts(newReceipts);
@@ -201,7 +225,7 @@ export default function Home() {
                 </button>
                 <button 
                   onClick={handleSave}
-                  disabled={loading || receipts[0].nama_donatur === ''}
+                  disabled={loading || (mode === 'single' && receipts[0].nama_donatur === '')}
                   className="flex-1 bg-brand-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
                 >
                   <Save className={cn("w-5 h-5", loading && "animate-spin")} />
@@ -223,7 +247,7 @@ export default function Home() {
           <h2 className="text-xl font-bold text-gray-400 mb-4 no-print">Preview (A4 Ready)</h2>
           <div className="flex flex-col gap-0 border shadow-2xl lg:shadow-none bg-white">
             {receipts.map((data, idx) => (
-              <ReceiptCard key={idx} data={data} />
+              <ReceiptCard key={data.unique_hash || idx} data={data} />
             ))}
             {/* Mock extra receipts to show A4 layout */}
             <div className="hidden lg:block no-print">
