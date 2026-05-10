@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { formatCurrency, cn } from "@/lib/utils";
-import { Search, Trash2, ExternalLink, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Search, Trash2, ExternalLink, RefreshCw, AlertCircle, CheckCircle2, Printer, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 export default function RekapPage() {
@@ -53,18 +53,25 @@ export default function RekapPage() {
       if (res.ok) {
         showToast("Data berhasil dihapus! 🗑️", "success");
         setLogs(prev => prev.filter(log => log.id !== id));
-        // Update stats lokal sederhana
-        setStats(prev => ({
-          total_count: prev.total_count - 1,
-          total_amount: prev.total_amount // Nominalnya susah dikurangin manual tanpa re-fetch
-        }));
-        fetchData(); // Tetap re-fetch buat akurasi nominal
+        fetchData(); // Refresh stats juga
       } else {
         showToast(result.error || "Gagal menghapus data", "error");
       }
     } catch (err) {
       showToast("Terjadi kesalahan koneksi", "error");
     }
+  };
+
+  const handleShareWA = (log: any) => {
+    const message = `Halo *${log.nama_donatur}*, ini adalah kwitansi resmi dari *Paguyuban Dharma Putra Mahesa* Desa Kalikebo.\n\n` +
+      `No: ${log.no_kwitansi}\n` +
+      `Nominal: ${formatCurrency(Number(log.nominal))}\n` +
+      `Keperluan: ${log.keperluan}\n` +
+      `Tanggal: ${new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}\n\n` +
+      `Cek validitas di sini: https://kwitansi.neoma.space/verify/${log.unique_hash}\n\n` +
+      `Terima kasih atas partisipasinya! 🙏`;
+    
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const filteredLogs = logs.filter(log => 
@@ -147,7 +154,7 @@ export default function RekapPage() {
                       <td className="px-6 py-4 font-bold text-brand-secondary uppercase">{log.nama_donatur}</td>
                       <td className="px-6 py-4 text-right font-black text-brand-secondary">{formatCurrency(Number(log.nominal))}</td>
                       <td className="px-6 py-4 text-gray-400">{new Date(log.created_at).toLocaleDateString('id-ID')}</td>
-                      <td className="px-6 py-4 text-center flex items-center justify-center gap-2">
+                      <td className="px-6 py-4 text-center flex items-center justify-center gap-1 sm:gap-2">
                         <Link 
                           href={`/verify/${log.unique_hash}`}
                           className="p-2 text-gray-400 hover:text-brand-primary transition-all"
@@ -155,6 +162,21 @@ export default function RekapPage() {
                         >
                           <ExternalLink className="w-4 h-4" />
                         </Link>
+                        <Link 
+                          href={`/print/${log.unique_hash}`}
+                          target="_blank"
+                          className="p-2 text-gray-400 hover:text-blue-500 transition-all"
+                          title="Cetak Satuan"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </Link>
+                        <button 
+                          onClick={() => handleShareWA(log)}
+                          className="p-2 text-gray-400 hover:text-emerald-500 transition-all"
+                          title="Kirim ke WhatsApp"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </button>
                         <button 
                           type="button"
                           onClick={(e) => {
@@ -162,10 +184,10 @@ export default function RekapPage() {
                             e.stopPropagation();
                             handleDelete(log.id);
                           }}
-                          className="p-2 text-gray-400 hover:text-red-500 transition-all cursor-pointer bg-transparent border-none outline-none"
+                          className="p-2 text-gray-400 hover:text-red-500 transition-all cursor-pointer"
                           title="Hapus Data Kwitansi"
                         >
-                          <Trash2 className="w-5 h-5 pointer-events-none" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
