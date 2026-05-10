@@ -81,12 +81,21 @@ export default function Home() {
       return;
     }
 
+    const sanitize = (str: string) => str.replace(/<[^>]*>?/gm, '').trim();
+
+    const sanitizedReceipts = receipts.map(r => ({
+      ...r,
+      nama_donatur: sanitize(r.nama_donatur),
+      keperluan: sanitize(r.keperluan),
+      nominal: Math.max(0, Number(r.nominal))
+    }));
+
     setLoading(true);
     try {
       const res = await fetch('/api/receipts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receipts }),
+        body: JSON.stringify({ receipts: sanitizedReceipts }),
       });
 
       const result = await res.json();
