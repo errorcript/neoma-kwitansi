@@ -6,11 +6,18 @@ export const dynamic = "force-dynamic";
 
 export default async function SinglePrintPage({ params }: { params: Promise<{ hash: string }> }) {
   const { hash } = await params;
-  const data = await db.getReceiptByHash(hash);
+  const rawData = await db.getReceiptByHash(hash);
   
-  if (!data) {
+  if (!rawData) {
     redirect("/rekap");
   }
+
+  // Type cast to satisfy ReceiptCard props
+  const data = {
+    ...rawData,
+    tanggal: rawData.created_at ? new Date(rawData.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '',
+    bendahara: "DIDIK SUBIYANTO" // Fallback or fetch from settings
+  } as any;
 
   return (
     <main className="min-h-screen bg-white flex items-start justify-center p-0">
