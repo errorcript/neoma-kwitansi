@@ -154,19 +154,6 @@ export default function RekapPage() {
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50 relative">
       
-      {/* Admin Header */}
-      <div className="max-w-6xl mx-auto flex justify-between items-center mb-8 no-print">
-        <Link href="/" className="flex items-center gap-2 bg-white px-6 py-4 rounded-3xl shadow-sm border border-gray-100 font-black text-xs uppercase tracking-widest text-brand-secondary hover:shadow-md transition-all">
-           <LayoutDashboard className="w-4 h-4 text-brand-primary" /> Kembali ke Input
-        </Link>
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-2 bg-rose-50 text-rose-600 px-6 py-4 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-rose-100 transition-all"
-        >
-           <LogOut className="w-4 h-4" /> Keluar
-        </button>
-      </div>
-      
       {/* 🛡️ CUSTOM SECURITY MODAL */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">

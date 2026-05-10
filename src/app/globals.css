@@ -23,21 +23,32 @@
       background: white;
       margin: 0 !important;
       padding: 0 !important;
+      display: block !important;
     }
     .no-print {
       display: none !important;
     }
-    .print-container {
-      width: 210mm;
-      margin: 0 auto;
-      padding: 0;
+    header {
+      display: none !important;
     }
-    .page-break {
-      page-break-after: always;
+    .print-container {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 10mm 0 !important; /* Spacing top/bottom */
+      background: white !important;
+    }
+    /* Force receipt card to be center and not clipped */
+    .print-container > div {
+       margin: 0 auto 5mm auto !important;
+       page-break-inside: avoid !important;
     }
   }
 }
 
 body {
-  @apply bg-gray-50 text-brand-secondary antialiased;
+  @apply bg-gray-50 text-brand-secondary antialiased min-h-screen;
 }
