@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { formatCurrency, cn } from "@/lib/utils";
 import { 
   Search, Trash2, ExternalLink, RefreshCw, AlertCircle, 
-  CheckCircle2, Printer, MessageSquare, ShieldAlert, X, Download 
+  CheckCircle2, Printer, MessageSquare, ShieldAlert, X, Download,
+  LayoutDashboard, LogOut
 } from "lucide-react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
