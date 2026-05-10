@@ -156,11 +156,16 @@ export default function RekapPage() {
                           <ExternalLink className="w-4 h-4" />
                         </Link>
                         <button 
-                          onClick={() => handleDelete(log.id)}
-                          className="p-2 text-gray-400 hover:text-red-500 transition-all"
-                          title="Hapus Data"
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDelete(log.id);
+                          }}
+                          className="p-2 text-gray-400 hover:text-red-500 transition-all cursor-pointer bg-transparent border-none outline-none"
+                          title="Hapus Data Kwitansi"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5 pointer-events-none" />
                         </button>
                       </td>
                     </tr>

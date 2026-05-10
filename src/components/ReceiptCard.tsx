@@ -20,7 +20,7 @@ interface ReceiptProps {
 
 export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
   return (
-    <div className="relative w-full h-[105mm] border-2 border-brand-primary p-6 bg-white overflow-hidden flex flex-col font-sans">
+    <div className="relative w-full print:w-[210mm] h-[99mm] border-2 border-brand-primary p-6 bg-white overflow-hidden flex flex-col font-sans">
       {/* Side Label */}
       <div className="absolute left-0 top-0 bottom-0 w-12 bg-brand-primary flex items-center justify-center">
         <span className="transform -rotate-90 whitespace-nowrap text-white font-bold text-2xl tracking-widest">
@@ -44,9 +44,12 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
               <p className="text-sm font-semibold text-brand-secondary">DESA KALIKEBO</p>
             </div>
           </div>
-          <div className="text-right">
-            <h2 className="text-xl font-black italic text-brand-secondary">KWITANSI</h2>
-            <p className="text-sm font-mono font-bold">No: {data.no_kwitansi}</p>
+          {/* Right Section: Title & Number */}
+          <div className="text-right flex flex-col items-end">
+            <h2 className="text-2xl font-black text-brand-secondary tracking-tighter leading-none mb-1">KWITANSI</h2>
+            <div className="bg-gray-100 px-2 py-1 rounded border border-gray-200">
+              <p className="text-[9px] font-mono font-bold text-brand-secondary leading-none">No: {data.no_kwitansi}</p>
+            </div>
           </div>
         </div>
 
@@ -78,25 +81,30 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-auto flex justify-between items-end pb-2">
+        {/* Footer: Signatures & QR */}
+        <div className="mt-auto grid grid-cols-3 items-end gap-4 text-center pb-2">
           <div className="flex flex-col items-center">
-            <p className="text-[10px] font-bold mb-6 uppercase text-gray-400">Yang menyerahkan</p>
-            <p className="text-sm font-bold uppercase underline min-w-[100px] text-center border-b border-gray-200">{data.penyerah || '....................'}</p>
+            <p className="text-[10px] uppercase font-bold text-gray-400 mb-8">Yang Menyerahkan</p>
+            <div className="w-full border-b border-brand-secondary font-bold text-brand-secondary uppercase truncate px-2 pb-1">
+              {data.penyerah || '....................'}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center">
+            <div className="p-1 bg-white border border-gray-100 rounded-lg shadow-sm mb-1">
+              <QRCodeSVG 
+                value={`https://kwitansi.neoma.space/verify/${data.unique_hash}`} 
+                size={60}
+              />
+            </div>
+            <p className="text-[8px] font-bold text-gray-400">Scan to Verify</p>
           </div>
 
           <div className="flex flex-col items-center">
-            <QRCodeSVG value={`https://kwitansi.neoma.space/verify/${data.unique_hash}`} size={56} />
-            <p className="text-[8px] mt-1 text-gray-400 tracking-tighter">Scan to Verify</p>
-          </div>
-
-          <div className="flex flex-col items-center text-right">
-            <p className="text-[10px] font-bold mb-1">
-              Kalikebo, {data.tanggal}
-            </p>
-            <p className="text-[10px] font-bold mb-6 uppercase text-gray-400">Bendahara</p>
-            <p className="text-sm font-bold uppercase underline min-w-[100px] text-center">{data.bendahara}</p>
-            
+            <p className="text-[10px] uppercase font-bold text-gray-400 mb-2">Kalikebo, {data.tanggal}<br/>Bendahara</p>
+            <div className="w-full border-b border-brand-secondary font-bold text-brand-secondary uppercase truncate px-2 pb-1">
+              {data.bendahara}
+            </div>
             {/* WhatsApp Share Button (No Print) */}
             <button 
               onClick={() => {
