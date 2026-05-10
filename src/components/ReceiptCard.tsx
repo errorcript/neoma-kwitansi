@@ -34,9 +34,9 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
   };
 
   return (
-    <div className="relative w-full print:w-[210mm] h-[99mm] border-2 border-brand-primary p-6 bg-white overflow-hidden flex flex-col font-sans">
+    <div className="relative w-full print:w-[210mm] h-[95mm] border-2 border-brand-primary p-6 bg-white overflow-hidden flex flex-col font-sans mb-1">
       {/* Side Label */}
-      <div className="absolute left-0 top-0 bottom-0 w-12 bg-brand-primary flex items-center justify-center no-print">
+      <div className="absolute left-0 top-0 bottom-0 w-12 bg-brand-primary flex items-center justify-center">
         <span className="transform -rotate-90 whitespace-nowrap text-white font-bold text-2xl tracking-widest uppercase">
           KWITANSI
         </span>
@@ -99,9 +99,9 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         </div>
 
         {/* Footer: Signatures & QR */}
-        <div className="mt-auto grid grid-cols-3 items-end gap-4 text-center pb-2">
+        <div className="mt-auto grid grid-cols-3 items-end gap-4 text-center pb-6">
           <div className="flex flex-col items-center">
-            <p className="text-[10px] uppercase font-bold text-gray-400 mb-8 tracking-tighter">Yang Menyerahkan</p>
+            <p className="text-[10px] uppercase font-bold text-gray-400 mb-6 tracking-tighter">Yang Menyerahkan</p>
             <div className="w-full border-b border-brand-secondary font-bold text-brand-secondary uppercase truncate px-2 pb-1 text-sm">
               {data.penyerah || '....................'}
             </div>
@@ -111,7 +111,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
             <div className="p-1 bg-white border border-gray-100 rounded-lg shadow-sm mb-1">
               <QRCodeSVG 
                 value={`https://kwitansi.neoma.space/verify/${data.unique_hash}`} 
-                size={55}
+                size={50}
               />
             </div>
             <p className="text-[8px] font-bold text-gray-400">Scan to Verify</p>
