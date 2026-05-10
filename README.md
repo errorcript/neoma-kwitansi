@@ -1,6 +1,6 @@
 # 💎 NEOMA SYSTEM - Official Kwitansi Paguyuban
 
-Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dharma Putra Mahesa**. Didesain dengan estetika *Glassmorphism* modern dan presisi tinggi untuk kebutuhan cetak bukti donasi.
+Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dharma Putra Mahesa**. Didesain dengan identitas visual resmi organisasi (Forest Green & White) dan presisi tinggi untuk kebutuhan cetak bukti donasi fisik.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38B2AC?style=for-the-badge&logo=tailwind-css)
@@ -9,22 +9,22 @@ Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dh
 
 ## ✨ Fitur Unggulan
 
-- 🎨 **Premium Glassmorphism UI**: Antarmuka modern yang bersih, responsif, dan elegan.
-- 🖨️ **Precision Printing (210mm x 105mm)**: Layout kwitansi yang dioptimalkan untuk ukuran A4 (sepertiga lembar) dengan presisi pixel-perfect.
-- 🚀 **Bulk Entry System**: Input banyak data sekaligus menggunakan format CSV-like untuk efisiensi tinggi.
-- 📊 **Real-time Rekapitulasi**: Dashboard monitoring total dana dan log transaksi secara transparan.
-- 🛡️ **Secure API Architecture**: Pemrosesan data sisi server menggunakan Vercel Postgres untuk keamanan integritas data.
-- 📲 **WhatsApp Integration**: Berbagi kwitansi PDF langsung ke WhatsApp donatur dengan satu klik.
-- 🔑 **Master Admin Access**: Sistem login terpusat untuk menjaga keamanan konfigurasi.
+- 🎨 **Official Organization Branding**: Antarmuka bersih dengan skema warna Hijau & Putih yang formal dan terpercaya.
+- 🖨️ **Precision A4 Printing (1/3 Split)**: Layout kwitansi yang presisi meniru dokumen fisik, dioptimalkan untuk dibagi menjadi 3 bagian dalam satu lembar A4.
+- 🔍 **QR Verification System**: Setiap kwitansi memiliki kode QR unik yang dapat di-scan publik untuk memverifikasi keaslian donasi secara real-time.
+- 🚀 **Bulk Entry System**: Input data donatur massal (Nama, Nominal) untuk efisiensi admin (Anti-Mager workflow).
+- 📊 **Dashboard Rekapitulasi**: Monitoring total dana terkumpul dan log transaksi harian secara transparan.
+- 🛡️ **Secure API Architecture**: Keamanan data menggunakan Vercel Postgres dengan sistem otentikasi Master Admin.
+- 📲 **WhatsApp Sharing**: Bagikan bukti kwitansi digital langsung ke WhatsApp donatur dengan format yang rapi.
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 16 (Turbopack)
-- **Styling**: Tailwind CSS v4 (Custom Modern System)
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS v4 (Organization Color Palette)
 - **Database**: Vercel Postgres (Serverless SQL)
-- **PDF Generation**: jsPDF & html2canvas
+- **PDF Engine**: jsPDF & html2canvas
 - **Icons**: Lucide React
-- **QR Engine**: qrcode.react (Verification System)
+- **Validation**: QR Code Verification Engine
 
 ## 🚀 Cara Instalasi
 
@@ -48,7 +48,7 @@ Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dh
 
 ## 📜 Lisensi
 
-Eksklusif dikembangkan untuk **Paguyuban Dharma Putra Mahesa**.
+Eksklusif dikembangkan oleh **Neoma Creative Hub** untuk **Paguyuban Dharma Putra Mahesa**.
 
 ---
 *Built with ❤️ by Antigravity for Neoma.*
