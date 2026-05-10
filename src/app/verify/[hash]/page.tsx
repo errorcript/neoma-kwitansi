@@ -4,8 +4,9 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function VerifyPage({ params }: { params: { hash: string } }) {
-  const data = await db.getReceiptByHash(params.hash);
+export default async function VerifyPage({ params }: { params: Promise<{ hash: string }> }) {
+  const { hash } = await params;
+  const data = await db.getReceiptByHash(hash);
   
   if (!data) {
     return (

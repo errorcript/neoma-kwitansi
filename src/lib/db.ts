@@ -116,6 +116,14 @@ export const db = {
     }
   },
 
+  deleteReceipt: async (id: string) => {
+    await createTable();
+    await sql`
+      DELETE FROM donasi_logs WHERE id = ${id};
+    `;
+    console.log(`[DB] Deleted receipt: ${id}`);
+  },
+
   getSetting: async (key: string) => {
     try {
       await createTable();
