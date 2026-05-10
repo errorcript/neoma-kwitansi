@@ -46,8 +46,8 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-brand-primary pb-4 mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 relative bg-white p-1 rounded-full border border-gray-100 shadow-sm flex items-center justify-center">
-               <img src="/logo.png" alt="Logo" className="w-14 h-14 object-contain" />
+            <div className="w-16 h-16 relative bg-white p-1 rounded-full border border-gray-100 shadow-sm flex items-center justify-center overflow-hidden">
+               <img src="/logo-paguyuban.png" alt="Logo Paguyuban" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-xl font-black text-brand-secondary leading-none uppercase">Paguyuban Dharma Putra Mahesa</h1>

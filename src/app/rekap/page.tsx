@@ -6,11 +6,16 @@ import { Search, Trash2, ExternalLink, RefreshCw, AlertCircle, CheckCircle2, Pri
 import Link from "next/link";
 
 export default function RekapPage() {
+  const [mounted, setMounted] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
   const [stats, setStats] = useState({ total_count: 0, total_amount: 0 });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
     setNotification({ message, type });
@@ -18,7 +23,7 @@ export default function RekapPage() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    console.log("[AUDIT] Fetching transaction logs...");
+    console.log("[DEBUG] Fetching logs...");
     setLoading(true);
     try {
       const res = await fetch('/api/receipts/list', { cache: 'no-store' });
@@ -28,20 +33,23 @@ export default function RekapPage() {
         setStats(data.stats || { total_count: 0, total_amount: 0 });
       }
     } catch (err) {
-      console.error("[AUDIT ERROR] Failed to fetch logs:", err);
-      showToast("Gagal mengambil data dari server", "error");
+      console.error("[DEBUG] Fetch error:", err);
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (mounted) fetchData();
+  }, [mounted, fetchData]);
 
-  // FIX: Ensured this is ONLY called via explicit user click
-  const performDelete = async (id: string) => {
-    console.log(`[AUDIT] User initiated deletion for ID: ${id}`);
+  const handleDelete = async (id: string, nama: string) => {
+    console.log("[DEBUG] Clicked delete for:", id);
+    
+    // Gunakan alert dulu buat ngetes apakah JS-nya nyampe sini
+    const yakin = window.confirm(`Hapus permanen kwitansi atas nama: ${nama}?`);
+    if (!yakin) return;
+
     try {
       const res = await fetch('/api/receipts/delete', {
         method: 'POST',
@@ -51,26 +59,23 @@ export default function RekapPage() {
       
       const result = await res.json();
       if (res.ok) {
-        showToast("Data berhasil dihapus! 🗑️", "success");
+        showToast("Data Berhasil Dihapus! ✅", "success");
         setLogs(prev => prev.filter(log => log.id !== id));
-        fetchData(); 
+        fetchData();
       } else {
-        showToast(result.error || "Gagal menghapus data", "error");
+        showToast(result.error || "Gagal Hapus", "error");
       }
     } catch (err) {
-      showToast("Terjadi kesalahan koneksi", "error");
+      showToast("Kesalahan Koneksi", "error");
     }
   };
 
   const handleShareWA = (log: any) => {
     const message = `Halo *${log.nama_donatur}*, ini adalah kwitansi resmi dari *Paguyuban Dharma Putra Mahesa* Desa Kalikebo.\n\n` +
       `No: ${log.no_kwitansi}\n` +
-      `Nominal: ${formatCurrency(Number(log.nominal))}\n` +
-      `Keperluan: ${log.keperluan}\n` +
-      `Tanggal: ${new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}\n\n` +
-      `Cek validitas di sini: https://kwitansi.neoma.space/verify/${log.unique_hash}\n\n` +
-      `Terima kasih atas partisipasinya! 🙏`;
-    
+      `Nominal: ${formatCurrency(Number(log.nominal))}\n\n` +
+      `Cek di sini: https://kwitansi.neoma.space/verify/${log.unique_hash}\n\n` +
+      `Terima kasih! 🙏`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -79,140 +84,107 @@ export default function RekapPage() {
     (log.no_kwitansi?.toLowerCase() || "").includes(search.toLowerCase())
   );
 
+  if (!mounted) return null;
+
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50 relative overflow-hidden">
-      {/* Toast Notification */}
+      {/* Toast */}
       {notification && (
         <div className={cn(
-          "fixed top-20 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300",
+          "fixed top-10 left-1/2 -translate-x-1/2 z-[999] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300",
           notification.type === 'success' ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
         )}>
           {notification.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-          <span className="font-bold text-sm uppercase tracking-wider">{notification.message}</span>
+          <span className="font-bold text-sm uppercase">{notification.message}</span>
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* Security Header */}
-        <div className="bg-brand-secondary text-white p-4 rounded-2xl flex items-center justify-between shadow-sm border border-brand-secondary/20">
-          <div className="flex items-center gap-3">
-            <ShieldAlert className="w-5 h-5 text-brand-primary" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">Security Mode: Active</p>
-              <p className="text-xs opacity-70">Sistem terlindungi dari serangan injeksi dan akses ilegal.</p>
-            </div>
-          </div>
-          <button 
-            onClick={fetchData}
-            className={cn("p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all", loading && "animate-spin")}
-            title="Refresh Data"
-          >
-            <RefreshCw className="w-5 h-5" />
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Top Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-black text-brand-secondary">Rekapitulasi Donasi</h1>
+          <button onClick={fetchData} className="p-2 bg-white rounded-xl shadow-sm hover:bg-gray-50 border border-gray-100">
+             <RefreshCw className={cn("w-5 h-5 text-brand-primary", loading && "animate-spin")} />
           </button>
         </div>
 
-        {/* Stats Header */}
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-brand-primary text-brand-secondary p-8 rounded-[32px] shadow-lg border border-brand-primary/20">
-            <p className="text-xs font-bold uppercase opacity-70 mb-1">Total Donasi Masuk</p>
-            <h2 className="text-5xl font-black tracking-tight">{formatCurrency(stats.total_amount)}</h2>
+          <div className="bg-brand-primary text-brand-secondary p-8 rounded-3xl shadow-lg">
+             <p className="text-[10px] font-black uppercase opacity-60">Total Dana Masuk</p>
+             <h2 className="text-4xl font-black">{formatCurrency(stats.total_amount)}</h2>
           </div>
-          <div className="bg-white p-8 rounded-[32px] shadow-lg border border-gray-100 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase text-gray-400 mb-1">Jumlah Transaksi Terverifikasi</p>
-              <h2 className="text-4xl font-black text-brand-secondary">{stats.total_count} <span className="text-sm font-normal text-gray-400">Kwitansi</span></h2>
-            </div>
+          <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 flex items-center justify-between">
+             <div>
+               <p className="text-[10px] font-black uppercase text-gray-400">Total Kwitansi</p>
+               <h2 className="text-3xl font-black text-brand-secondary">{stats.total_count}</h2>
+             </div>
+             <ShieldAlert className="w-10 h-10 text-brand-primary/20" />
           </div>
         </div>
 
-        {/* History Table */}
-        <div className="bg-white rounded-[32px] shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-8 border-b flex flex-col sm:flex-row items-center justify-between gap-6 bg-gray-50/50">
-            <h3 className="font-bold text-xl text-brand-secondary">Riwayat Kwitansi Resmi</h3>
-            <div className="relative w-full sm:w-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Cari donatur atau nomor..." 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full sm:w-72 pl-12 pr-6 py-3 rounded-2xl border-none bg-gray-100 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all"
-              />
-            </div>
+        {/* Table */}
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+          <div className="p-6 border-b bg-gray-50/50 flex flex-col sm:flex-row gap-4 justify-between items-center">
+             <div className="relative w-full sm:w-64">
+               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+               <input 
+                 type="text" 
+                 placeholder="Cari nama/nomor..." 
+                 value={search}
+                 onChange={(e) => setSearch(e.target.value)}
+                 className="w-full pl-10 pr-4 py-2 bg-white rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-brand-primary text-sm"
+               />
+             </div>
           </div>
 
           <div className="overflow-x-auto">
-            {loading && logs.length === 0 ? (
-              <div className="p-24 text-center text-gray-400 font-bold uppercase tracking-widest animate-pulse">
-                Audit Data Sedang Berlangsung...
-              </div>
-            ) : (
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 text-[10px] font-black uppercase text-gray-400 tracking-widest border-b">
-                    <th className="px-8 py-5">No Kwitansi</th>
-                    <th className="px-8 py-5">Nama Donatur</th>
-                    <th className="px-8 py-5 text-right">Nominal</th>
-                    <th className="px-8 py-5 text-center">Aksi</th>
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-gray-50 text-[10px] font-black uppercase text-gray-400 border-b">
+                  <th className="px-6 py-4">Nomor</th>
+                  <th className="px-6 py-4">Nama Donatur</th>
+                  <th className="px-6 py-4 text-right">Nominal</th>
+                  <th className="px-6 py-4 text-center">Opsi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y text-sm">
+                {filteredLogs.map((log) => (
+                  <tr key={log.id} className="hover:bg-gray-50 transition-all">
+                    <td className="px-6 py-4 font-mono text-[10px] text-brand-primary font-bold">{log.no_kwitansi}</td>
+                    <td className="px-6 py-4 font-bold text-brand-secondary uppercase">{log.nama_donatur}</td>
+                    <td className="px-6 py-4 text-right font-black">{formatCurrency(Number(log.nominal))}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-1">
+                        <Link href={`/verify/${log.unique_hash}`} className="p-2 text-gray-400 hover:text-brand-primary">
+                          <ExternalLink className="w-4 h-4" />
+                        </Link>
+                        <Link href={`/print/${log.unique_hash}`} target="_blank" className="p-2 text-gray-400 hover:text-blue-500">
+                          <Printer className="w-4 h-4" />
+                        </Link>
+                        <button onClick={() => handleShareWA(log)} className="p-2 text-gray-400 hover:text-emerald-500">
+                          <MessageSquare className="w-4 h-4" />
+                        </button>
+                        {/* THE TROUBLEMAKER BUTTON */}
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDelete(log.id, log.nama_donatur);
+                          }}
+                          className="p-2 text-rose-300 hover:text-rose-600 transition-all cursor-pointer bg-white rounded-lg hover:bg-rose-50"
+                          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y text-sm">
-                  {filteredLogs.map((log: any) => (
-                    <tr key={log.id} className="hover:bg-gray-50/50 transition-all group">
-                      <td className="px-8 py-5 font-mono font-bold text-[10px] text-brand-primary">{log.no_kwitansi}</td>
-                      <td className="px-8 py-5 font-bold text-brand-secondary uppercase">{log.nama_donatur}</td>
-                      <td className="px-8 py-5 text-right font-black text-brand-secondary">{formatCurrency(Number(log.nominal))}</td>
-                      <td className="px-8 py-5 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <Link 
-                            href={`/verify/${log.unique_hash}`}
-                            className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-xl transition-all"
-                            title="Verify"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Link>
-                          <Link 
-                            href={`/print/${log.unique_hash}`}
-                            target="_blank"
-                            className="p-3 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
-                            title="Print"
-                          >
-                            <Printer className="w-4 h-4" />
-                          </Link>
-                          <button 
-                            onClick={() => handleShareWA(log)}
-                            className="p-3 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all"
-                            title="Share WA"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                          </button>
-                          <button 
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              const yakin = window.confirm("SECURITY ALERT: Hapus data ini secara permanen?");
-                              if (yakin) performDelete(log.id);
-                            }}
-                            className="p-3 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredLogs.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className="px-8 py-24 text-center text-gray-400 italic">
-                        Belum ada rekaman donasi yang terverifikasi.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            )}
+                ))}
+                {filteredLogs.length === 0 && (
+                  <tr><td colSpan={4} className="p-20 text-center text-gray-400 italic">Data tidak ditemukan.</td></tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

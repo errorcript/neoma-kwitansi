@@ -290,9 +290,9 @@ export default function Home() {
         </section>
 
         {/* Preview Section */}
-        <section className="print-container space-y-0">
+        <section className="print-container space-y-0 overflow-x-auto pb-12">
           <h2 className="text-xl font-bold text-gray-400 mb-4 no-print">Preview (A4 Ready)</h2>
-          <div className="flex flex-col gap-0 border border-gray-200 bg-white">
+          <div className="flex flex-col gap-0 border border-gray-200 bg-white min-w-[210mm] lg:min-w-0">
             {receipts.map((data, idx) => (
               <ReceiptCard key={data.unique_hash || idx} data={data} />
             ))}
