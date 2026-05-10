@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ReceiptCard } from "@/components/ReceiptCard";
 import { 
   PlusCircle, Trash2, Printer, Download, Save, 
-  CheckCircle2, AlertCircle, LogOut, LayoutDashboard 
+  CheckCircle2, AlertCircle, LogOut, LayoutDashboard, RefreshCw 
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency, cn } from "@/lib/utils";
