@@ -190,7 +190,9 @@ export default function Home() {
              <Printer className="w-8 h-8" />
              <div className="text-left">
                 <p className="font-black text-xl leading-none">CETAK SEMUA</p>
-                <p className="text-[10px] font-bold opacity-60 uppercase tracking-widest mt-1">Klik untuk memunculkan dialog print</p>
+                <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-1">
+                  Format A4 • Muat 3 kwitansi per lembar
+                </p>
              </div>
           </button>
         </section>
