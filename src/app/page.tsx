@@ -187,9 +187,9 @@ export default function Home() {
               <div key={idx} className="relative w-full flex flex-col items-center group">
                 
                 {/* 🛡️ STABLE PREVIEW BOX */}
-                <div className="w-full bg-white rounded-[40px] border border-gray-100 shadow-2xl p-6 sm:p-10 no-print overflow-x-auto">
-                   <div className="min-w-[210mm] flex justify-center py-8">
-                      <div className="shadow-2xl hover:scale-[1.02] transition-transform duration-500">
+                <div className="w-full bg-white rounded-[40px] border border-gray-100 shadow-2xl p-4 sm:p-6 no-print overflow-hidden">
+                   <div className="w-full flex justify-center py-4">
+                      <div className="shadow-2xl hover:scale-[1.02] transition-transform duration-500 scale-[0.35] sm:scale-[0.5] md:scale-[0.7] lg:scale-[0.6] xl:scale-[0.8] 2xl:scale-90 origin-top">
                          <ReceiptCard data={data} />
                       </div>
                    </div>

@@ -10,7 +10,7 @@ export async function GET() {
     const statsResult = await sql`
       SELECT 
         COUNT(*)::int as total_count, 
-        COALESCE(SUM(nominal), 0)::int as total_amount 
+        COALESCE(SUM(nominal), 0)::bigint as total_amount 
       FROM receipts
     `;
     
