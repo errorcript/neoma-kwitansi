@@ -12,7 +12,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/public/stats', { cache: 'no-store' })
+    fetch(`/api/public/stats?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (data.success) setStats(data.stats);
