@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import html2canvas from "html2canvas";
+import { ReceiptCard } from "@/components/ReceiptCard";
 import { formatCurrency, cn } from "@/lib/utils";
 import { 
   Search, Trash2, ExternalLink, RefreshCw, AlertCircle, 
@@ -25,6 +27,8 @@ export default function RekapPage() {
   // Date Filters
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const [sharingLog, setSharingLog] = useState<any | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -182,13 +186,47 @@ export default function RekapPage() {
     }
   };
 
-  const handleShareWA = (log: any) => {
-    const message = `Halo *${log.nama_donatur}*, ini adalah kwitansi resmi dari *Paguyuban Dharma Putra Mahesa* Desa Kalikebo.\n\n` +
-      `No: ${log.no_kwitansi}\n` +
-      `Nominal: ${formatCurrency(Number(log.nominal))}\n\n` +
-      `Cek: https://kwitansi.neoma.space/verify/${log.unique_hash}\n\n` +
-      `Terima kasih! 🙏`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+  const downloadReceiptImage = async (id: string, fileName: string) => {
+    const element = document.getElementById(id);
+    if (!element) return;
+    
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      });
+      
+      const link = document.createElement('a');
+      link.download = `${fileName}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error("Error capturing receipt:", err);
+    }
+  };
+
+  const handleShareWA = async (log: any) => {
+    // 1. Siapkan data untuk capture
+    setSharingLog(log);
+    
+    // 2. Tunggu sebentar biar render selesai
+    setTimeout(async () => {
+      const safeName = (log.nama_donatur || "DONATUR").replace(/[^a-z0-9]/gi, '_').toUpperCase();
+      const fileName = `Kwitansi_${log.no_kwitansi.split('/')[0]}_${safeName}`;
+      await downloadReceiptImage('rekap-share-capture', fileName);
+      
+      // 3. Buka WhatsApp
+      const message = `Halo *${log.nama_donatur}*, ini adalah kwitansi resmi dari *Paguyuban Dharma Putra Mahesa* Desa Kalikebo.\n\n` +
+        `No: ${log.no_kwitansi}\n` +
+        `Nominal: ${formatCurrency(Number(log.nominal))}\n\n` +
+        `Cek: https://kwitansi.neoma.space/verify/${log.unique_hash}\n\n` +
+        `Terima kasih! 🙏`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+      
+      // 4. Bersihkan
+      setSharingLog(null);
+    }, 600);
   };
 
   const filteredLogs = logs.filter(log => 
@@ -205,6 +243,19 @@ export default function RekapPage() {
 
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50 relative">
+      
+      {/* 📸 HIDDEN CAPTURE CONTAINER */}
+      {sharingLog && (
+        <div className="fixed -left-[2000px] top-0">
+          <div id="rekap-share-capture" className="bg-white">
+            <ReceiptCard data={{
+              ...sharingLog,
+              tanggal: new Date(sharingLog.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+              bendahara: "DIDIK SUBIYANTO"
+            }} />
+          </div>
+        </div>
+      )}
       
       {/* ✏️ EDIT MODAL */}
       {editingLog && (
