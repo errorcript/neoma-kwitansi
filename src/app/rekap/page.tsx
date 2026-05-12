@@ -210,10 +210,15 @@ export default function RekapPage() {
         }
       });
       
-      const link = document.createElement('a');
-      link.download = `${fileName}.png`;
-      link.href = canvas.toDataURL('image/png', 1.0);
-      link.click();
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `${fileName}.png`;
+        link.href = url;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/png');
     } catch (err) {
       console.error("Error capturing receipt:", err);
     } finally {
