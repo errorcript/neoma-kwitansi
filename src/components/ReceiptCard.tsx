@@ -93,9 +93,9 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         </div>
 
         {/* Footer - Guaranteed Visibility */}
-        <div className="mt-4 grid grid-cols-3 items-end gap-4 text-center">
-          <div className="flex flex-col items-center">
-            <p className="text-[9px] uppercase font-black text-gray-400 mb-8 tracking-widest">Penyerah</p>
+        <div className="mt-6 grid grid-cols-3 gap-4 text-center h-24">
+          <div className="flex flex-col items-center justify-between py-1">
+            <p className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Penyerah</p>
             <div className="w-full border-b border-brand-secondary font-black text-brand-secondary uppercase truncate px-2 pb-0.5 text-[10px]">
               {data.penyerah || '....................'}
             </div>
@@ -111,10 +111,15 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
             <p className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Verify</p>
           </div>
 
-          <div className="flex flex-col items-center">
-            <p className="text-[9px] uppercase font-black text-gray-400 mb-2 tracking-widest text-right leading-tight">
-              Kalikebo, {data.tanggal}<br/>Bendahara
-            </p>
+          <div className="flex flex-col items-center justify-between py-1">
+            <div className="text-center">
+               <p className="text-[8px] uppercase font-black text-gray-400 tracking-tight leading-none mb-1">
+                 Kalikebo, {data.tanggal}
+               </p>
+               <p className="text-[9px] uppercase font-black text-gray-400 tracking-widest">
+                 Bendahara
+               </p>
+            </div>
             <div className="w-full border-b border-brand-secondary font-black text-brand-secondary uppercase truncate px-2 pb-0.5 text-[10px]">
               {data.bendahara}
             </div>
