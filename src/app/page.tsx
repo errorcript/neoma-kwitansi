@@ -94,6 +94,15 @@ export default function Home() {
         backgroundColor: "#ffffff",
         logging: false,
         allowTaint: true,
+        onclone: (clonedDoc) => {
+          // Buang semua style yang pake oklch/lab biar html2canvas gak crash
+          const styles = clonedDoc.getElementsByTagName('style');
+          for (let i = 0; i < styles.length; i++) {
+            if (styles[i].innerHTML.includes('oklch(') || styles[i].innerHTML.includes('lab(')) {
+              styles[i].remove();
+            }
+          }
+        }
       });
       
       const link = document.createElement('a');

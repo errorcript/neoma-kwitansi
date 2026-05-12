@@ -200,6 +200,14 @@ export default function RekapPage() {
         backgroundColor: "#ffffff",
         logging: false,
         allowTaint: true,
+        onclone: (clonedDoc) => {
+          const styles = clonedDoc.getElementsByTagName('style');
+          for (let i = 0; i < styles.length; i++) {
+            if (styles[i].innerHTML.includes('oklch(') || styles[i].innerHTML.includes('lab(')) {
+              styles[i].remove();
+            }
+          }
+        }
       });
       
       const link = document.createElement('a');
