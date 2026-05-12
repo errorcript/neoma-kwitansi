@@ -171,9 +171,11 @@ export default function Home() {
              <div className="space-y-6">
                 {receipts.map((r, idx) => (
                   <div key={idx} className="p-6 bg-gray-50 rounded-[32px] border border-gray-100 space-y-4 relative group hover:border-brand-primary/30 transition-all">
-                    <button onClick={() => removeRow(idx)} className="absolute top-4 right-4 p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {receipts.length > 1 && (
+                      <button onClick={() => removeRow(idx)} className="absolute top-4 right-4 p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
 
                     <div className="space-y-4">
                       <div className="space-y-1">
@@ -230,10 +232,17 @@ export default function Home() {
             {receipts.map((data, idx) => (
               <div key={idx} className="relative w-full flex flex-col items-center group">
                 
+                {/* 📸 HIDDEN CAPTURE CONTAINER (For Share WA) */}
+                <div className="fixed -left-[2000px] top-0 no-print">
+                   <div id={`receipt-capture-${idx}`} className="bg-white">
+                      <ReceiptCard data={data} />
+                   </div>
+                </div>
+
                 {/* 🛡️ STABLE PREVIEW BOX */}
                 <div className="w-full bg-white rounded-[40px] border border-gray-100 shadow-2xl p-4 sm:p-6 no-print overflow-hidden">
                    <div className="w-full flex justify-center py-4">
-                      <div id={`receipt-preview-${idx}`} className="shadow-2xl hover:scale-[1.02] transition-transform duration-500 scale-[0.35] sm:scale-[0.5] md:scale-[0.7] lg:scale-[0.6] xl:scale-[0.8] 2xl:scale-90 origin-top bg-white">
+                      <div className="shadow-2xl hover:scale-[1.02] transition-transform duration-500 scale-[0.35] sm:scale-[0.5] md:scale-[0.7] lg:scale-[0.6] xl:scale-[0.8] 2xl:scale-90 origin-top">
                          <ReceiptCard data={data} />
                       </div>
                    </div>
@@ -246,7 +255,20 @@ export default function Home() {
 
                 {/* WA Button Overlay */}
                 <button 
-                  onClick={() => handleShareWA(data, idx)}
+                  onClick={async () => {
+                    const safeName = data.nama_donatur.replace(/[^a-z0-9]/gi, '_').toUpperCase();
+                    const fileName = `Kwitansi_${data.no_kwitansi.split('/')[0]}_${safeName}`;
+                    await downloadReceiptImage(`receipt-capture-${idx}`, fileName);
+                    
+                    const message = `Halo *${data.nama_donatur}*, ini adalah kwitansi resmi dari *Paguyuban Dharma Putra Mahesa* Desa Kalikebo.\n\n` +
+                      `No: ${data.no_kwitansi}\n` +
+                      `Nominal: Rp ${data.nominal.toLocaleString('id-ID')}\n` +
+                      `Keperluan: ${data.keperluan}\n` +
+                      `Tanggal: ${data.tanggal}\n\n` +
+                      `Cek validitas di sini: https://kwitansi.neoma.space/verify/${data.unique_hash}\n\n` +
+                      `Terima kasih atas partisipasinya! 🙏`;
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+                  }}
                   className="absolute bottom-10 right-10 no-print bg-emerald-600 text-white px-6 py-3 rounded-2xl flex items-center gap-2 shadow-2xl hover:bg-emerald-700 transition-all font-black text-xs uppercase tracking-widest"
                 >
                    <MessageSquare className="w-4 h-4" /> Share WhatsApp
