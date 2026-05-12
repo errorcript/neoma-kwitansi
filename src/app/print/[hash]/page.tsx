@@ -4,6 +4,18 @@ import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({ params }: { params: Promise<{ hash: string }> }) {
+  const { hash } = await params;
+  const rawData = await db.getReceiptByHash(hash);
+  if (!rawData) return { title: "Print Kwitansi" };
+  
+  // Format nama file: Kwitansi_NO_NAMA.pdf
+  const safeName = rawData.nama_donatur.replace(/[^a-z0-9]/gi, '_').toUpperCase();
+  return {
+    title: `Kwitansi_${rawData.no_kwitansi.split('/')[0]}_${safeName}`,
+  };
+}
+
 export default async function SinglePrintPage({ params }: { params: Promise<{ hash: string }> }) {
   const { hash } = await params;
   const rawData = await db.getReceiptByHash(hash);

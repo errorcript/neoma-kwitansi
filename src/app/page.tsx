@@ -72,7 +72,10 @@ export default function Home() {
   };
 
   const handlePrint = () => {
+    const originalTitle = document.title;
+    document.title = `Laporan_Kwitansi_Massal_${new Date().toISOString().split('T')[0]}`;
     window.print();
+    setTimeout(() => { document.title = originalTitle; }, 1000);
   };
 
   const handleShareWA = (data: ReceiptEntry) => {
