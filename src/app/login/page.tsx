@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Lock, ArrowRight, AlertCircle, Users, Wallet } from "lucide-react";
+import { ShieldCheck, Lock, ArrowRight, AlertCircle, Users, Wallet, RefreshCw } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ total_count: 0, total_amount: 0 });
   const router = useRouter();
 
@@ -19,14 +20,27 @@ export default function LoginPage() {
       });
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "alfana123") {
-      document.cookie = "admin_auth=true; path=/; max-age=86400"; // 24 hours
-      router.push("/");
-    } else {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      
+      if (res.ok) {
+        router.push("/");
+        router.refresh();
+      } else {
+        setError(true);
+        setTimeout(() => setError(false), 2000);
+      }
+    } catch (err) {
       setError(true);
-      setTimeout(() => setError(false), 2000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,9 +116,12 @@ export default function LoginPage() {
 
               <button 
                 type="submit"
-                className="w-full bg-brand-secondary text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-brand-secondary/90 transition-all shadow-lg shadow-brand-secondary/20 uppercase text-xs tracking-widest"
+                disabled={loading}
+                className="w-full bg-brand-secondary text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-brand-secondary/90 transition-all shadow-lg shadow-brand-secondary/20 uppercase text-xs tracking-widest disabled:opacity-50"
               >
-                Masuk Dashboard <ArrowRight className="w-4 h-4" />
+                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : (
+                  <>Masuk Dashboard <ArrowRight className="w-4 h-4" /></>
+                )}
               </button>
             </form>
 

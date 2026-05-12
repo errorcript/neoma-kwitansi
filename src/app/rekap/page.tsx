@@ -5,7 +5,7 @@ import { formatCurrency, cn } from "@/lib/utils";
 import { 
   Search, Trash2, ExternalLink, RefreshCw, AlertCircle, 
   CheckCircle2, Printer, MessageSquare, ShieldAlert, X, Download,
-  LayoutDashboard, LogOut
+  LayoutDashboard, LogOut, Edit3, Calendar, Filter
 } from "lucide-react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -19,7 +19,12 @@ export default function RekapPage() {
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [editingLog, setEditingLog] = useState<any | null>(null);
   const [pinInput, setPinInput] = useState("");
+  
+  // Date Filters
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -33,7 +38,11 @@ export default function RekapPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/receipts/list', { cache: 'no-store' });
+      const url = new URL('/api/receipts/list', window.location.origin);
+      if (startDate) url.searchParams.set('start', startDate);
+      if (endDate) url.searchParams.set('end', endDate);
+      
+      const res = await fetch(url.toString(), { cache: 'no-store' });
       const data = await res.json();
       if (res.ok) {
         setLogs(data.logs || []);
@@ -44,7 +53,7 @@ export default function RekapPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [startDate, endDate]);
 
   useEffect(() => {
     if (mounted) fetchData();
@@ -97,9 +106,20 @@ export default function RekapPage() {
   };
 
   const executeDelete = async () => {
-    if (pinInput !== "2804") {
-      showToast("PIN SALAH! ❌", "error");
-      setPinInput("");
+    try {
+      const verifyRes = await fetch('/api/auth/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: pinInput }),
+      });
+
+      if (!verifyRes.ok) {
+        showToast("PIN SALAH! ❌", "error");
+        setPinInput("");
+        return;
+      }
+    } catch (e) {
+      showToast("GANGGUAN KEAMANAN", "error");
       return;
     }
 
@@ -116,12 +136,44 @@ export default function RekapPage() {
       
       if (res.ok) {
         showToast("DATA DIHAPUS! 🗑️", "success");
-        setLogs(prev => prev.filter(log => log.id !== id));
         setConfirmDeleteId(null);
         setPinInput("");
         fetchData();
       } else {
         showToast("GAGAL HAPUS", "error");
+      }
+    } catch (err) {
+      showToast("GANGGUAN KONEKSI", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!editingLog) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetch('/api/receipts/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          id: editingLog.id, 
+          data: {
+            nama_donatur: editingLog.nama_donatur,
+            nominal: editingLog.nominal,
+            keperluan: editingLog.keperluan,
+            penyerah: editingLog.penyerah
+          }
+        }),
+      });
+      
+      if (res.ok) {
+        showToast("DATA DIUPDATE! ✨", "success");
+        setEditingLog(null);
+        fetchData();
+      } else {
+        showToast("GAGAL UPDATE", "error");
       }
     } catch (err) {
       showToast("GANGGUAN KONEKSI", "error");
@@ -154,7 +206,60 @@ export default function RekapPage() {
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50 relative">
       
-      {/* 🛡️ CUSTOM SECURITY MODAL */}
+      {/* ✏️ EDIT MODAL */}
+      {editingLog && (
+        // ... (existing edit modal code)
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+           <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full p-8 border border-gray-100 animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-start mb-6">
+                 <div className="bg-brand-primary/10 p-3 rounded-2xl">
+                    <Edit3 className="w-6 h-6 text-brand-primary" />
+                 </div>
+                 <button onClick={() => setEditingLog(null)} className="p-2 hover:bg-gray-100 rounded-full">
+                    <X className="w-5 h-5 text-gray-400" />
+                 </button>
+              </div>
+              <h2 className="text-xl font-black text-brand-secondary mb-6 uppercase tracking-tight">Edit Data Donasi</h2>
+              
+              <div className="space-y-4 mb-8">
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nama Donatur</label>
+                    <input 
+                      type="text" 
+                      value={editingLog.nama_donatur}
+                      onChange={(e) => setEditingLog({...editingLog, nama_donatur: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-primary font-bold"
+                    />
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nominal</label>
+                    <input 
+                      type="number" 
+                      value={editingLog.nominal}
+                      onChange={(e) => setEditingLog({...editingLog, nominal: Number(e.target.value)})}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-primary font-black"
+                    />
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Keperluan</label>
+                    <input 
+                      type="text" 
+                      value={editingLog.keperluan}
+                      onChange={(e) => setEditingLog({...editingLog, keperluan: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-primary font-bold"
+                    />
+                 </div>
+              </div>
+
+              <div className="flex gap-3">
+                 <button onClick={() => setEditingLog(null)} className="flex-1 py-4 font-bold text-gray-400 uppercase text-xs">Batal</button>
+                 <button onClick={handleUpdate} className="flex-2 bg-brand-secondary text-white py-4 px-6 rounded-2xl font-black uppercase text-xs shadow-lg">Simpan Perubahan</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* 🛡️ SECURITY MODAL (DELETE) */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
            <div className="bg-white rounded-[32px] shadow-2xl max-w-sm w-full p-8 border-4 border-rose-500 animate-in zoom-in-95 duration-200">
@@ -237,18 +342,45 @@ export default function RekapPage() {
 
         {/* Table */}
         <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
-           <div className="p-8 border-b bg-gray-50/50 flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <div className="relative w-full sm:w-80">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                 <input 
-                   type="text" 
-                   placeholder="Cari donatur/nomor..." 
-                   value={search}
-                   onChange={(e) => setSearch(e.target.value)}
-                   className="w-full pl-12 pr-6 py-3 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-brand-primary text-sm font-medium"
-                 />
-              </div>
-           </div>
+            <div className="p-8 border-b bg-gray-50/50 flex flex-col lg:flex-row gap-6 justify-between items-center">
+               <div className="relative w-full lg:w-80">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input 
+                    type="text" 
+                    placeholder="Cari donatur/nomor..." 
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-12 pr-6 py-4 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-brand-primary text-sm font-medium"
+                  />
+               </div>
+
+               <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                  <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100">
+                     <Calendar className="w-4 h-4 text-gray-400" />
+                     <input 
+                       type="date" 
+                       value={startDate}
+                       onChange={(e) => setStartDate(e.target.value)}
+                       className="border-none p-0 text-xs font-bold outline-none"
+                     />
+                     <span className="text-gray-300">-</span>
+                     <input 
+                       type="date" 
+                       value={endDate}
+                       onChange={(e) => setEndDate(e.target.value)}
+                       className="border-none p-0 text-xs font-bold outline-none"
+                     />
+                  </div>
+                  {(startDate || endDate) && (
+                    <button 
+                      onClick={() => { setStartDate(""); setEndDate(""); }}
+                      className="p-3 text-rose-500 hover:bg-rose-50 rounded-2xl transition-all"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+               </div>
+            </div>
 
            <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -268,6 +400,9 @@ export default function RekapPage() {
                           <td className="px-8 py-6 text-right font-black text-brand-secondary text-lg">{formatCurrency(Number(log.nominal))}</td>
                           <td className="px-8 py-6">
                              <div className="flex items-center justify-center gap-1">
+                                <button onClick={() => setEditingLog(log)} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
+                                   <Edit3 className="w-5 h-5" />
+                                </button>
                                 <Link href={`/verify/${log.unique_hash}`} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
                                    <ExternalLink className="w-5 h-5" />
                                 </Link>

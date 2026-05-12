@@ -3,10 +3,14 @@ import { db } from '@/lib/db';
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const logs = await db.getAllLogs();
-    const stats = await db.getStats();
+    const { searchParams } = new URL(request.url);
+    const start = searchParams.get('start') || undefined;
+    const end = searchParams.get('end') || undefined;
+
+    const logs = await db.getAllLogs(start, end);
+    const stats = await db.getStats(start, end);
     
     return NextResponse.json({ logs, stats });
   } catch (error: any) {

@@ -24,8 +24,18 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
-  const createDefaultEntry = useCallback(() => ({
-    no_kwitansi: `${Date.now()}/PAG-DPM/MOBSOS/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+  const fetchNextNumber = useCallback(async () => {
+    try {
+      const res = await fetch('/api/receipts/next-number');
+      const data = await res.json();
+      if (data.success) return data.next_number;
+    } catch (e) {
+      return `${Date.now()}/PAG-DPM/MOBSOS/${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
+    }
+  }, []);
+
+  const createDefaultEntry = useCallback((nextNo?: string) => ({
+    no_kwitansi: nextNo || "LOADING...",
     nama_donatur: "",
     nominal: 0,
     keperluan: "Sumbangan Donatur Mobsos",
@@ -36,13 +46,17 @@ export default function Home() {
   }), []);
 
   useEffect(() => {
-    fetch('/api/public/stats', { cache: 'no-store' })
-      .then(res => res.json())
-      .catch(console.error);
-    setReceipts([createDefaultEntry()]);
-  }, [createDefaultEntry]);
+    const init = async () => {
+      const nextNo = await fetchNextNumber();
+      setReceipts([createDefaultEntry(nextNo)]);
+    };
+    init();
+  }, [createDefaultEntry, fetchNextNumber]);
 
-  const addRow = () => setReceipts([...receipts, createDefaultEntry()]);
+  const addRow = async () => {
+    const nextNo = await fetchNextNumber();
+    setReceipts([...receipts, createDefaultEntry(nextNo)]);
+  };
   const removeRow = (index: number) => {
     if (receipts.length > 1) setReceipts(receipts.filter((_, i) => i !== index));
   };

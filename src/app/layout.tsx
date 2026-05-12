@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,13 +11,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import type { Metadata, Viewport } from "next";
+
 export const metadata: Metadata = {
   title: "Sistem Kwitansi Neoma - Paguyuban Dharma Putra Mahesa",
-  description: "Sistem kwitansi otomatis profesional untuk transparansi donasi.",
+  description: "Sistem manajemen kwitansi donasi profesional dan transparan.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo-paguyuban.png",
     apple: "/logo-paguyuban.png",
   }
+};
+
+export const viewport: Viewport = {
+  themeColor: "#054d3b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 import { Header } from "@/components/Header";

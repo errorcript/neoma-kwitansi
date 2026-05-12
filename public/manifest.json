@@ -1,0 +1,21 @@
+{
+  "name": "Neoma Kwitansi - Paguyuban DPM",
+  "short_name": "Neoma Kwitansi",
+  "description": "Sistem Kwitansi Digital Paguyuban Dharma Putra Mahesa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#054d3b",
+  "icons": [
+    {
+      "src": "/logo-paguyuban.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-paguyuban.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

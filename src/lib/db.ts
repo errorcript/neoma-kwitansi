@@ -90,14 +90,24 @@ export const db = {
     return rows[0];
   },
 
-  getAllLogs: async () => {
+  getAllLogs: async (start?: string, end?: string) => {
     try {
       await createTable();
-      const { rows } = await sql`
-        SELECT * FROM donasi_logs 
-        WHERE status = 'active'
-        ORDER BY created_at DESC;
-      `;
+      let query = `SELECT * FROM donasi_logs WHERE status = 'active'`;
+      const params: any[] = [];
+      
+      if (start) {
+        params.push(start);
+        query += ` AND created_at >= $${params.length}`;
+      }
+      if (end) {
+        params.push(end + ' 23:59:59');
+        query += ` AND created_at <= $${params.length}`;
+      }
+      
+      query += ` ORDER BY created_at DESC`;
+      
+      const { rows } = await sql.query(query, params);
       return rows;
     } catch (e) {
       console.error("DB Error in getAllLogs:", e);
@@ -105,16 +115,22 @@ export const db = {
     }
   },
 
-  getStats: async () => {
+  getStats: async (start?: string, end?: string) => {
     try {
       await createTable();
-      const { rows } = await sql`
-        SELECT 
-          COUNT(id) as total_count,
-          SUM(nominal) as total_amount
-        FROM donasi_logs 
-        WHERE status = 'active';
-      `;
+      let query = `SELECT COUNT(id) as total_count, SUM(nominal) as total_amount FROM donasi_logs WHERE status = 'active'`;
+      const params: any[] = [];
+
+      if (start) {
+        params.push(start);
+        query += ` AND created_at >= $${params.length}`;
+      }
+      if (end) {
+        params.push(end + ' 23:59:59');
+        query += ` AND created_at <= $${params.length}`;
+      }
+      
+      const { rows } = await sql.query(query, params);
       const stats = rows[0] || { total_count: 0, total_amount: 0 };
       return {
         total_count: Number(stats.total_count) || 0,
@@ -132,8 +148,46 @@ export const db = {
     console.log(`[DB] Deleted receipt: ${id}`);
   },
 
+  updateReceipt: async (id: string, data: any) => {
+    await createTable();
+    await sql`
+      UPDATE donasi_logs 
+      SET 
+        nama_donatur = ${data.nama_donatur},
+        nominal = ${data.nominal},
+        keperluan = ${data.keperluan},
+        penyerah = ${data.penyerah}
+      WHERE id = ${id};
+    `;
+    console.log(`[DB] Updated receipt: ${id}`);
+  },
+
+  getNextSequenceNumber: async () => {
+    try {
+      await createTable();
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const year = now.getFullYear();
+      
+      // Hitung jumlah record di bulan & tahun yang sama
+      const { rows } = await sql`
+        SELECT COUNT(*) as count 
+        FROM donasi_logs 
+        WHERE EXTRACT(MONTH FROM created_at) = ${month} 
+        AND EXTRACT(YEAR FROM created_at) = ${year};
+      `;
+      
+      const nextNum = (Number(rows[0].count) || 0) + 1;
+      // Format 001, 002, dst
+      return nextNum.toString().padStart(3, '0');
+    } catch (e) {
+      return "001";
+    }
+  },
+
   getSetting: async (key: string) => {
     try {
+      await createTable();
       const { rows } = await sql`
         SELECT value FROM settings WHERE key = ${key} LIMIT 1;
       `;
