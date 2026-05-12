@@ -50,5 +50,9 @@
 }
 
 body {
-  @apply bg-gray-50 text-brand-secondary antialiased min-h-screen;
+  background-color: #f9fafb;
+  color: #353e4c;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }

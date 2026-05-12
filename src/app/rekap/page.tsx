@@ -190,19 +190,26 @@ export default function RekapPage() {
     const element = document.getElementById(id);
     if (!element) return;
     
+    const scrollY = window.scrollY;
+    window.scrollTo(0, 0);
+
     try {
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
+        logging: false,
+        allowTaint: true,
       });
       
       const link = document.createElement('a');
       link.download = `${fileName}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
     } catch (err) {
       console.error("Error capturing receipt:", err);
+    } finally {
+      window.scrollTo(0, scrollY);
     }
   };
 
@@ -242,7 +249,7 @@ export default function RekapPage() {
   if (!mounted) return null;
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-gray-50 relative">
+    <main className="min-h-screen p-4 md:p-8 relative" style={{ backgroundColor: '#f9fafb' }}>
       
       {/* 📸 HIDDEN CAPTURE CONTAINER */}
       {sharingLog && (

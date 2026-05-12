@@ -83,19 +83,28 @@ export default function Home() {
     const element = document.getElementById(id);
     if (!element) return;
     
+    // Simpan posisi scroll
+    const scrollY = window.scrollY;
+    window.scrollTo(0, 0);
+
     try {
       const canvas = await html2canvas(element, {
-        scale: 2, // High quality
+        scale: 2,
         useCORS: true,
-        backgroundColor: null
+        backgroundColor: "#ffffff",
+        logging: false,
+        allowTaint: true,
       });
       
       const link = document.createElement('a');
       link.download = `${fileName}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
     } catch (err) {
       console.error("Error capturing receipt:", err);
+    } finally {
+      // Kembalikan posisi scroll
+      window.scrollTo(0, scrollY);
     }
   };
 
@@ -143,7 +152,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col items-center">
+    <main className="min-h-screen flex flex-col items-center" style={{ backgroundColor: '#f9fafb' }}>
       {/* Toast Notification */}
       {notification && (
         <div className={cn(
