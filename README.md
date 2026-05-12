@@ -14,6 +14,7 @@ Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dh
 - 🔍 **QR Verification System**: Setiap kwitansi memiliki kode QR unik yang dapat di-scan publik untuk memverifikasi keaslian donasi secara real-time.
 - 🚀 **Bulk Entry System**: Input data donatur massal (Nama, Nominal) untuk efisiensi admin (Anti-Mager workflow).
 - 📊 **Dashboard Rekapitulasi**: Monitoring total dana terkumpul dan log transaksi harian secara transparan.
+- ⚡ **Extreme Performance**: Optimasi Database Indexing & Initialization Flag untuk loading data kilat (< 1 detik).
 - 🛡️ **Secure API Architecture**: Keamanan data menggunakan Vercel Postgres dengan sistem otentikasi Master Admin.
 - 📲 **WhatsApp Sharing**: Bagikan bukti kwitansi digital langsung ke WhatsApp donatur dengan format yang rapi.
 
