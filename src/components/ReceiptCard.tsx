@@ -31,9 +31,16 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
   };
 
   return (
-    <div className="relative w-[210mm] h-[95mm] border-2 border-[#8fc0c0] p-6 bg-white overflow-hidden flex flex-col font-sans shadow-sm mx-auto" style={{ backgroundColor: '#ffffff' }}>
+    <div 
+      className="relative w-[210mm] h-[95mm] p-6 overflow-hidden flex flex-col font-sans mx-auto" 
+      style={{ 
+        backgroundColor: '#ffffff', 
+        border: '2px solid #8fc0c0',
+        color: '#353e4c'
+      }}
+    >
       {/* Side Label */}
-      <div className="absolute left-0 top-0 bottom-0 w-10 bg-brand-primary flex items-center justify-center">
+      <div className="absolute left-0 top-0 bottom-0 w-10 flex items-center justify-center" style={{ backgroundColor: '#8fc0c0' }}>
         <span className="transform -rotate-90 whitespace-nowrap text-white font-bold text-xl tracking-widest uppercase">
           KWITANSI
         </span>
@@ -41,18 +48,18 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
 
       <div className="flex-grow pl-8">
         {/* Header - Compact */}
-        <div className="flex justify-between items-start border-b-2 border-brand-primary pb-2 mb-4">
+        <div className="flex justify-between items-start pb-2 mb-4" style={{ borderBottom: '2px solid #8fc0c0' }}>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 relative bg-white p-1 rounded-full border border-[#f3f4f6] shadow-sm flex items-center justify-center">
+            <div className="w-12 h-12 relative bg-white p-1 rounded-full border flex items-center justify-center" style={{ borderColor: '#f3f4f6' }}>
                <img src="/logo-paguyuban.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="text-lg font-black text-brand-secondary leading-none uppercase tracking-tighter">Paguyuban Dharma Putra Mahesa</h1>
-              <p className="text-[10px] font-bold text-brand-secondary mt-1">DESA KALIKEBO</p>
+              <h1 className="text-lg font-black leading-none uppercase tracking-tighter" style={{ color: '#353e4c' }}>Paguyuban Dharma Putra Mahesa</h1>
+              <p className="text-[10px] font-bold mt-1" style={{ color: '#353e4c' }}>DESA KALIKEBO</p>
             </div>
           </div>
           <div className="text-right">
-            <h2 className="text-2xl font-black text-brand-secondary tracking-tighter leading-none mb-1 italic">KWITANSI</h2>
+            <h2 className="text-2xl font-black tracking-tighter leading-none mb-1 italic" style={{ color: '#353e4c' }}>KWITANSI</h2>
             <p className="text-[9px] font-mono font-bold" style={{ color: '#9ca3af' }}>No: {data.no_kwitansi}</p>
           </div>
         </div>
@@ -60,33 +67,33 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         {/* Content - Compact spacing */}
         <div className="flex-grow space-y-3">
           <div className="flex items-start">
-            <span className="w-36 flex-shrink-0 font-bold text-brand-secondary text-[11px] uppercase tracking-tight">Telah diterima dari</span>
-            <span className="mx-2 font-bold text-brand-secondary text-[11px]">:</span>
-            <div className="flex-grow border-b border-dashed border-[#d1d5db] pb-0.5 italic font-bold uppercase text-[11px] text-brand-secondary">
+            <span className="w-36 flex-shrink-0 font-bold text-[11px] uppercase tracking-tight" style={{ color: '#353e4c' }}>Telah diterima dari</span>
+            <span className="mx-2 font-bold text-[11px]" style={{ color: '#353e4c' }}>:</span>
+            <div className="flex-grow border-b border-dashed pb-0.5 italic font-bold uppercase text-[11px]" style={{ borderColor: '#d1d5db', color: '#353e4c' }}>
               {data.nama_donatur || '..................................................'}
             </div>
           </div>
 
           <div className="flex items-center">
-            <span className="w-36 flex-shrink-0 font-bold text-brand-secondary text-[11px] uppercase tracking-tight">Uang sebesar</span>
-            <span className="mx-2 font-bold text-brand-secondary text-[11px]">:</span>
+            <span className="w-36 flex-shrink-0 font-bold text-[11px] uppercase tracking-tight" style={{ color: '#353e4c' }}>Uang sebesar</span>
+            <span className="mx-2 font-bold text-[11px]" style={{ color: '#353e4c' }}>:</span>
             <div className="flex-grow flex items-center">
-              <span className="text-2xl font-black text-brand-secondary px-3 py-0.5 rounded-lg border border-[#f3f4f6]" style={{ backgroundColor: '#f9fafb' }}>Rp {data.nominal.toLocaleString('id-ID')}</span>
+              <span className="text-2xl font-black px-3 py-0.5 rounded-lg border" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c' }}>Rp {data.nominal.toLocaleString('id-ID')}</span>
             </div>
           </div>
 
           <div className="flex items-start">
-            <span className="w-36 flex-shrink-0 font-bold text-brand-secondary text-[11px] uppercase tracking-tight">Terbilang</span>
-            <span className="mx-2 font-bold text-brand-secondary text-[11px]">:</span>
-            <div className="flex-grow p-2 rounded-xl border border-[#f3f4f6] italic text-brand-secondary font-bold text-[11px] leading-tight" style={{ backgroundColor: '#f9fafb' }}>
+            <span className="w-36 flex-shrink-0 font-bold text-[11px] uppercase tracking-tight" style={{ color: '#353e4c' }}>Terbilang</span>
+            <span className="mx-2 font-bold text-[11px]" style={{ color: '#353e4c' }}>:</span>
+            <div className="flex-grow p-2 rounded-xl border italic font-bold text-[11px] leading-tight" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c' }}>
               {terbilang(data.nominal)} Rupiah
             </div>
           </div>
 
           <div className="flex items-start">
-            <span className="w-36 flex-shrink-0 font-bold text-brand-secondary text-[11px] uppercase tracking-tight">Untuk Pembayaran</span>
-            <span className="mx-2 font-bold text-brand-secondary text-[11px]">:</span>
-            <div className="flex-grow border-b border-dashed border-[#d1d5db] pb-0.5 text-brand-secondary font-bold text-[11px] uppercase">
+            <span className="w-36 flex-shrink-0 font-bold text-[11px] uppercase tracking-tight" style={{ color: '#353e4c' }}>Untuk Pembayaran</span>
+            <span className="mx-2 font-bold text-[11px]" style={{ color: '#353e4c' }}>:</span>
+            <div className="flex-grow border-b border-dashed pb-0.5 font-bold text-[11px] uppercase" style={{ borderColor: '#d1d5db', color: '#353e4c' }}>
               {data.keperluan || '..................................................'}
             </div>
           </div>
@@ -96,13 +103,13 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         <div className="mt-6 grid grid-cols-3 gap-4 text-center h-24">
           <div className="flex flex-col items-center justify-between py-1">
             <p className="text-[9px] uppercase font-black tracking-widest" style={{ color: '#9ca3af' }}>Penyerah</p>
-            <div className="w-full border-b border-brand-secondary font-black text-brand-secondary uppercase truncate px-2 pb-0.5 text-[10px]">
+            <div className="w-full border-b font-black uppercase truncate px-2 pb-0.5 text-[10px]" style={{ borderColor: '#353e4c', color: '#353e4c' }}>
               {data.penyerah || '....................'}
             </div>
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            <div className="p-1.5 bg-white border border-[#f3f4f6] rounded-xl shadow-sm mb-1">
+            <div className="p-1.5 bg-white border rounded-xl mb-1" style={{ borderColor: '#f3f4f6' }}>
               <QRCodeSVG 
                 value={`https://kwitansi.neoma.space/verify/${data.unique_hash}`} 
                 size={45}
@@ -120,7 +127,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
                  Bendahara
                </p>
             </div>
-            <div className="w-full border-b border-brand-secondary font-black text-brand-secondary uppercase truncate px-2 pb-0.5 text-[10px]">
+            <div className="w-full border-b font-black uppercase truncate px-2 pb-0.5 text-[10px]" style={{ borderColor: '#353e4c', color: '#353e4c' }}>
               {data.bendahara}
             </div>
           </div>
