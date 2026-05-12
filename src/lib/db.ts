@@ -1,6 +1,10 @@
 import { sql } from "@vercel/postgres";
 
+let isInitialized = false;
+
 export async function createTable() {
+  if (isInitialized) return;
+  
   try {
     // Jalankan satu per satu perintah
     await sql`
@@ -16,6 +20,10 @@ export async function createTable() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `;
+    
+    // Add index for performance on status and created_at if they don't exist
+    await sql`CREATE INDEX IF NOT EXISTS idx_status_created ON donasi_logs(status, created_at DESC);`;
+    
     await sql`
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
@@ -27,6 +35,8 @@ export async function createTable() {
       VALUES ('bendahara_name', 'DIDIK SUBIYANTO') 
       ON CONFLICT (key) DO NOTHING;
     `;
+    
+    isInitialized = true;
   } catch (err) {
     console.error("Gagal inisialisasi tabel:", err);
   }
@@ -74,7 +84,6 @@ export const db = {
   },
   
   getReceiptByHash: async (hash: string) => {
-    await createTable();
     const { rows } = await sql`
       SELECT * FROM donasi_logs WHERE unique_hash = ${hash} LIMIT 1;
     `;
@@ -117,7 +126,6 @@ export const db = {
   },
 
   deleteReceipt: async (id: string) => {
-    await createTable();
     await sql`
       DELETE FROM donasi_logs WHERE id = ${id};
     `;
@@ -126,7 +134,6 @@ export const db = {
 
   getSetting: async (key: string) => {
     try {
-      await createTable();
       const { rows } = await sql`
         SELECT value FROM settings WHERE key = ${key} LIMIT 1;
       `;
