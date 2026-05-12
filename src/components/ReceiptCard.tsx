@@ -39,11 +39,22 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         color: '#353e4c'
       }}
     >
-      {/* Side Label */}
+      {/* Side Label - Using SVG for perfect capture reliability */}
       <div className="absolute left-0 top-0 bottom-0 w-10 flex items-center justify-center" style={{ backgroundColor: '#8fc0c0' }}>
-        <span className="transform -rotate-90 whitespace-nowrap text-white font-bold text-xl tracking-widest uppercase">
-          KWITANSI
-        </span>
+        <svg width="40" height="350" viewBox="0 0 40 350" className="w-full h-full">
+          <text 
+            x="20" 
+            y="175" 
+            transform="rotate(-90 20 175)" 
+            textAnchor="middle" 
+            fill="white" 
+            fontSize="24" 
+            fontWeight="900" 
+            letterSpacing="8"
+          >
+            KWITANSI
+          </text>
+        </svg>
       </div>
 
       <div className="flex-grow pl-8">
