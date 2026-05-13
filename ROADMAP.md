@@ -35,6 +35,8 @@ Visi pengembangan sistem kwitansi **Paguyuban Dharma Putra Mahesa**.
 - [ ] **OCR Scanning**: Input data otomatis lewat foto nota fisik.
 - [ ] **Integrasi QRIS**: Terima donasi digital yang otomatis terbit kwitansi.
 - [ ] **Cloud Storage**: Simpan arsip gambar kwitansi otomatis di Supabase Storage.
+- [ ] **Security Enhancement**: Ganti Password Admin & PIN Hapus langsung dari Dashboard.
+- [ ] **Auto-Lock System**: Fitur logout otomatis setelah inaktivitas (Security First).
 
 ## 🎨 Design Vision
 - Fokus pada **Kejelasan & Kepercayaan** (Organization-First).
