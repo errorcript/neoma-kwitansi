@@ -36,11 +36,13 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
       style={{ 
         backgroundColor: '#ffffff', 
         border: '2px solid #8fc0c0',
-        color: '#353e4c'
-      }}
+        color: '#353e4c',
+        WebkitPrintColorAdjust: 'exact',
+        printColorAdjust: 'exact'
+      } as any}
     >
       {/* Side Label - Using SVG for perfect capture reliability */}
-      <div className="absolute left-0 top-0 bottom-0 w-10 flex items-center justify-center" style={{ backgroundColor: '#8fc0c0' }}>
+      <div className="absolute left-0 top-0 bottom-0 w-10 flex items-center justify-center" style={{ backgroundColor: '#8fc0c0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as any}>
         <svg width="40" height="350" viewBox="0 0 40 350" className="w-full h-full">
           <text 
             x="20" 
@@ -61,7 +63,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
         {/* Header - Compact */}
         <div className="flex justify-between items-start pb-2 mb-4" style={{ borderBottom: '2px solid #8fc0c0' }}>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 relative bg-white p-1 rounded-full border flex items-center justify-center" style={{ borderColor: '#f3f4f6' }}>
+            <div className="w-12 h-12 relative bg-white p-1 rounded-full border flex items-center justify-center" style={{ borderColor: '#f3f4f6', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as any}>
                <img src="/logo-paguyuban.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
@@ -89,14 +91,14 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
             <span className="w-36 flex-shrink-0 font-bold text-[11px] uppercase tracking-tight" style={{ color: '#353e4c' }}>Uang sebesar</span>
             <span className="mx-2 font-bold text-[11px]" style={{ color: '#353e4c' }}>:</span>
             <div className="flex-grow flex items-center">
-              <span className="text-2xl font-black px-3 py-0.5 rounded-lg border" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c' }}>Rp {Number(data.nominal).toLocaleString('id-ID')}</span>
+              <span className="text-2xl font-black px-3 py-0.5 rounded-lg border" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as any}>Rp {Number(data.nominal).toLocaleString('id-ID')}</span>
             </div>
           </div>
 
           <div className="flex items-start">
             <span className="w-36 flex-shrink-0 font-bold text-[11px] uppercase tracking-tight" style={{ color: '#353e4c' }}>Terbilang</span>
             <span className="mx-2 font-bold text-[11px]" style={{ color: '#353e4c' }}>:</span>
-            <div className="flex-grow p-2 rounded-xl border italic font-bold text-[11px] leading-tight" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c' }}>
+            <div className="flex-grow p-2 rounded-xl border italic font-bold text-[11px] leading-tight" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as any}>
               {terbilang(data.nominal)} Rupiah
             </div>
           </div>
@@ -120,7 +122,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            <div className="p-1.5 bg-white border rounded-xl mb-1" style={{ borderColor: '#f3f4f6' }}>
+            <div className="p-1.5 bg-white border rounded-xl mb-1" style={{ borderColor: '#f3f4f6', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as any}>
               <QRCodeSVG 
                 value={`https://kwitansi.neoma.space/verify/${data.unique_hash}`} 
                 size={45}
