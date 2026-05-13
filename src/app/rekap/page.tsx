@@ -307,9 +307,14 @@ export default function RekapPage() {
                  <div className="space-y-1">
                     <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nominal</label>
                     <input 
-                      type="number" 
-                      value={editingLog.nominal}
-                      onChange={(e) => setEditingLog({...editingLog, nominal: Number(e.target.value)})}
+                      type="text" 
+                      value={editingLog.nominal ? Number(editingLog.nominal).toLocaleString('id-ID') : ""}
+                      onChange={(e) => {
+                         const val = e.target.value.replace(/\./g, "");
+                         if (!isNaN(Number(val))) {
+                            setEditingLog({...editingLog, nominal: Number(val)});
+                         }
+                      }}
                       className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-primary font-black"
                     />
                  </div>

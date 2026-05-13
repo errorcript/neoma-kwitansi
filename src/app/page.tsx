@@ -218,7 +218,18 @@ export default function Home() {
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nominal Donasi</label>
-                        <input type="number" value={r.nominal || ""} onChange={(e) => updateRow(idx, 'nominal', Number(e.target.value))} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-black text-sm" placeholder="Rp 0" />
+                        <input 
+                          type="text" 
+                          value={r.nominal ? Number(r.nominal).toLocaleString('id-ID') : ""} 
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\./g, "");
+                            if (!isNaN(Number(val))) {
+                              updateRow(idx, 'nominal', Number(val));
+                            }
+                          }} 
+                          className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-black text-sm" 
+                          placeholder="Rp 0" 
+                        />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Untuk Pembayaran</label>
