@@ -41,7 +41,7 @@ export const Header = () => {
               return (
                 <Link
                   key={item.path}
-                  id={item.name === "Rekapitulasi" ? "tour-nav-rekap" : undefined}
+                  id={item.name === "Rekapitulasi" ? "tour-nav-rekap" : item.name === "Settings" ? "tour-nav-settings" : undefined}
                   href={item.path}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
@@ -61,6 +61,7 @@ export const Header = () => {
 
           <button
             onClick={handleLogout}
+            id="tour-logout"
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all"
           >
             <LogOut className="w-4 h-4" />

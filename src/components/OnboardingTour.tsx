@@ -91,6 +91,24 @@ const TourContent = () => {
             align: 'end' 
           } 
         },
+        { 
+          element: '#tour-nav-settings', 
+          popover: { 
+            title: 'Pengaturan', 
+            description: 'Atur identitas organisasi atau ganti PIN keamanan di menu ini.', 
+            side: "bottom", 
+            align: 'end' 
+          } 
+        },
+        { 
+          element: '#tour-logout', 
+          popover: { 
+            title: 'Keluar Sistem', 
+            description: 'Jangan lupa keluar kalo pake komputer umum biar akses admin tetep aman.', 
+            side: "bottom", 
+            align: 'end' 
+          } 
+        },
       ],
       onDestroyed: () => {
         localStorage.setItem("neoma_tour_completed", "true");
