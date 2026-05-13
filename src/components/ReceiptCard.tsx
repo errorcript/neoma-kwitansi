@@ -89,7 +89,7 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
             <span className="w-36 flex-shrink-0 font-bold text-[11px] uppercase tracking-tight" style={{ color: '#353e4c' }}>Uang sebesar</span>
             <span className="mx-2 font-bold text-[11px]" style={{ color: '#353e4c' }}>:</span>
             <div className="flex-grow flex items-center">
-              <span className="text-2xl font-black px-3 py-0.5 rounded-lg border" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c' }}>Rp {data.nominal.toLocaleString('id-ID')}</span>
+              <span className="text-2xl font-black px-3 py-0.5 rounded-lg border" style={{ backgroundColor: '#f9fafb', borderColor: '#f3f4f6', color: '#353e4c' }}>Rp {Number(data.nominal).toLocaleString('id-ID')}</span>
             </div>
           </div>
 
