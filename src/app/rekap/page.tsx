@@ -7,10 +7,11 @@ import { formatCurrency, cn } from "@/lib/utils";
 import { 
   Search, Trash2, ExternalLink, RefreshCw, AlertCircle, 
   CheckCircle2, Printer, MessageSquare, ShieldAlert, X, Download,
-  LayoutDashboard, LogOut, Edit3, Calendar, Filter
+  LayoutDashboard, LogOut, Edit3, Calendar, Filter, Save, PlusCircle
 } from "lucide-react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
+import { MonthlySummary } from "@/components/MonthlySummary";
 
 export default function RekapPage() {
   const [mounted, setMounted] = useState(false);
@@ -20,6 +21,14 @@ export default function RekapPage() {
   const [bendaharaName, setBendaharaName] = useState("DIDIK SUBIYANTO");
   const [search, setSearch] = useState("");
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+  const [signature, setSignature] = useState("");
+  
+  const [financialStats, setFinancialStats] = useState({ total_income: 0, total_expense: 0, balance: 0 });
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [expenseData, setExpenseData] = useState({ item_pengeluaran: "", nominal: 0, kategori: "Operasional", tanggal: new Date().toISOString().split('T')[0], keterangan: "" });
+  
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [showSummaryPreview, setShowSummaryPreview] = useState(false);
   
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [editingLog, setEditingLog] = useState<any | null>(null);
@@ -53,6 +62,18 @@ export default function RekapPage() {
         setLogs(data.logs || []);
         setStats(data.stats || { total_count: 0, total_amount: 0 });
         setBendaharaName(data.bendahara || "DIDIK SUBIYANTO");
+        setSignature(data.signature || "");
+      }
+
+      // Fetch financial stats
+      const finRes = await fetch('/api/financial-stats');
+      const finData = await finRes.json();
+      if (finData.success) {
+        setFinancialStats({
+          total_income: finData.total_income,
+          total_expense: finData.total_expense,
+          balance: finData.balance
+        });
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -251,6 +272,48 @@ export default function RekapPage() {
     }, 600);
   };
 
+  const handleSaveExpense = async () => {
+    if (!expenseData.item_pengeluaran || expenseData.nominal <= 0) {
+      showToast("Lengkapi data pengeluaran!", "error");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/expenses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(expenseData),
+      });
+      if (res.ok) {
+        showToast("PENGELUARAN DICATAT! ✅", "success");
+        setShowExpenseModal(false);
+        setExpenseData({ item_pengeluaran: "", nominal: 0, kategori: "Operasional", tanggal: new Date().toISOString().split('T')[0], keterangan: "" });
+        fetchData();
+      } else {
+        showToast("Gagal simpan pengeluaran", "error");
+      }
+    } catch (e) {
+      showToast("Gangguan koneksi", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    setIsGeneratingSummary(true);
+    setShowSummaryPreview(true);
+    
+    setTimeout(async () => {
+      const fileName = `LPJ_Paguyuban_${new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }).replace(' ', '_')}`;
+      await downloadReceiptImage('monthly-summary-report', fileName);
+      
+      showToast("LAPORAN LPJ SIAP! 📄", "success");
+      setIsGeneratingSummary(false);
+      setShowSummaryPreview(false);
+    }, 1000);
+  };
+
   const filteredLogs = logs.filter(log => 
     (log.nama_donatur?.toLowerCase() || "").includes(search.toLowerCase()) ||
     (log.no_kwitansi?.toLowerCase() || "").includes(search.toLowerCase())
@@ -273,9 +336,25 @@ export default function RekapPage() {
             <ReceiptCard data={{
               ...sharingLog,
               tanggal: new Date(sharingLog.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-              bendahara: bendaharaName
+              bendahara: bendaharaName,
+              signature: signature
             }} />
           </div>
+        </div>
+      )}
+
+      {/* 📊 SUMMARY REPORT PREVIEW (Hidden) */}
+      {showSummaryPreview && (
+        <div className="fixed -left-[4000px] top-0">
+          <MonthlySummary data={{
+            month: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+            income: financialStats.total_income,
+            expense: financialStats.total_expense,
+            balance: financialStats.balance,
+            logs: logs,
+            bendahara: bendaharaName,
+            signature: signature
+          }} />
         </div>
       )}
       
@@ -369,6 +448,81 @@ export default function RekapPage() {
         </div>
       )}
 
+      {/* 💸 EXPENSE MODAL */}
+      {showExpenseModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+           <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full p-8 border border-gray-100 animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-start mb-6">
+                 <div className="bg-rose-100 p-3 rounded-2xl">
+                    <Download className="w-6 h-6 text-rose-600" />
+                 </div>
+                 <button onClick={() => setShowExpenseModal(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                    <X className="w-5 h-5 text-gray-400" />
+                 </button>
+              </div>
+              <h2 className="text-xl font-black text-brand-secondary mb-2 uppercase tracking-tight">Catat Pengeluaran</h2>
+              <p className="text-xs text-gray-400 font-bold mb-6">Dana akan otomatis memotong saldo donasi.</p>
+              
+              <div className="space-y-4 mb-8">
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Item Pengeluaran</label>
+                    <input 
+                      type="text" 
+                      placeholder="Contoh: Beli Beras 50kg"
+                      value={expenseData.item_pengeluaran}
+                      onChange={(e) => setExpenseData({...expenseData, item_pengeluaran: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-rose-500 font-bold"
+                    />
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nominal (Rp)</label>
+                    <input 
+                      type="text" 
+                      placeholder="Rp 0"
+                      value={expenseData.nominal ? Number(expenseData.nominal).toLocaleString('id-ID') : ""}
+                      onChange={(e) => {
+                         const val = e.target.value.replace(/\./g, "");
+                         if (!isNaN(Number(val))) {
+                            setExpenseData({...expenseData, nominal: Number(val)});
+                         }
+                      }}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-rose-500 font-black"
+                    />
+                 </div>
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Kategori</label>
+                      <select 
+                        value={expenseData.kategori}
+                        onChange={(e) => setExpenseData({...expenseData, kategori: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-rose-500 font-bold text-xs"
+                      >
+                        <option value="Operasional">Operasional</option>
+                        <option value="Santunan">Santunan</option>
+                        <option value="Logistik">Logistik</option>
+                        <option value="Lain-lain">Lain-lain</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Tanggal</label>
+                      <input 
+                        type="date" 
+                        value={expenseData.tanggal}
+                        onChange={(e) => setExpenseData({...expenseData, tanggal: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-rose-500 font-bold text-xs"
+                      />
+                    </div>
+                 </div>
+              </div>
+
+              <div className="flex gap-3">
+                 <button onClick={() => setShowExpenseModal(false)} className="flex-1 py-4 font-bold text-gray-400 uppercase text-xs">Batal</button>
+                 <button onClick={handleSaveExpense} className="flex-2 bg-rose-600 text-white py-4 px-6 rounded-2xl font-black uppercase text-xs shadow-lg">Simpan Pengeluaran</button>
+              </div>
+           </div>
+        </div>
+      )}
+
       {/* Toast */}
       {notification && (
         <div className={cn(
@@ -388,10 +542,17 @@ export default function RekapPage() {
                <ShieldAlert className="w-3 h-3 text-brand-primary" /> Admin Terminal
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button 
+              onClick={handleGenerateSummary}
+              disabled={isGeneratingSummary}
+              className="flex items-center gap-2 px-6 py-3 bg-brand-secondary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              {isGeneratingSummary ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} LPJ Instan
+            </button>
             <button 
               onClick={handleExportExcel}
-              className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all"
+              className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all"
             >
               <Download className="w-4 h-4" /> Export Excel
             </button>
@@ -401,19 +562,37 @@ export default function RekapPage() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-           <div className="bg-brand-primary p-8 rounded-[40px] shadow-lg border border-brand-primary/20">
-              <p className="text-[10px] font-black uppercase text-brand-secondary/60 mb-1">Kas Masuk Terkumpul</p>
-              <h2 className="text-5xl font-black text-brand-secondary">{formatCurrency(stats.total_amount)}</h2>
-           </div>
-           <div className="bg-white p-8 rounded-[40px] shadow-lg border border-gray-100 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Total Data Entri</p>
-                <h2 className="text-4xl font-black text-brand-secondary">{stats.total_count}</h2>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+           <div className="bg-brand-primary p-8 rounded-[40px] shadow-lg border border-brand-primary/20 relative overflow-hidden group">
+              <div className="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 transition-transform">
+                <CheckCircle2 className="w-32 h-32" />
               </div>
-              <div className="bg-brand-primary/10 p-4 rounded-full">
-                 <ShieldAlert className="w-8 h-8 text-brand-primary" />
+              <p className="text-[10px] font-black uppercase text-brand-secondary/60 mb-1">Total Kas Masuk</p>
+              <h2 className="text-4xl font-black text-brand-secondary">{formatCurrency(financialStats.total_income)}</h2>
+           </div>
+           
+           <div className="bg-white p-8 rounded-[40px] shadow-lg border border-gray-100 relative overflow-hidden group">
+              <button 
+                onClick={() => setShowExpenseModal(true)}
+                className="absolute top-6 right-6 p-2 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+              >
+                <PlusCircle className="w-5 h-5" />
+              </button>
+              <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Total Pengeluaran</p>
+              <h2 className="text-4xl font-black text-rose-500">{formatCurrency(financialStats.total_expense)}</h2>
+              <p className="text-[9px] font-bold text-gray-300 mt-2">Dikelola oleh Bendahara</p>
+           </div>
+
+           <div className="bg-slate-900 p-8 rounded-[40px] shadow-xl relative overflow-hidden group">
+              <div className="absolute right-0 bottom-0 opacity-20 group-hover:scale-110 transition-transform">
+                <ShieldAlert className="w-32 h-32 text-brand-primary" />
+              </div>
+              <p className="text-[10px] font-black uppercase text-brand-primary/60 mb-1">Sisa Saldo Kas</p>
+              <h2 className="text-4xl font-black text-white">{formatCurrency(financialStats.balance)}</h2>
+              <div className="mt-2 flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Real-time Balance</p>
               </div>
            </div>
         </div>

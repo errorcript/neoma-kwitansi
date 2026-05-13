@@ -31,12 +31,22 @@ Visi pengembangan sistem kwitansi **Paguyuban Dharma Putra Mahesa**.
 - [x] **Professional Signature Symmetry**: Perbaikan layout tanda tangan Bendahara & Penyerah.
 - [x] **Onboarding Tutorial**: Guided tour (Spotlight) buat user baru di device baru.
 
-## 🚀 Phase 4: Future Scaling
-- [ ] **OCR Scanning**: Input data otomatis lewat foto nota fisik.
-- [ ] **Integrasi QRIS**: Terima donasi digital yang otomatis terbit kwitansi.
-- [ ] **Cloud Storage**: Simpan arsip gambar kwitansi otomatis di Supabase Storage.
+## 🚀 Phase 4: Financial & Security (Scaling)
+- [ ] **Financial Transparency Hub**: Input pengeluaran donasi & tracking penggunaan dana (Transparansi penuh).
+- [ ] **Auto-Balance Calculation**: Perhitungan sisa saldo otomatis (Total Donasi - Total Pengeluaran).
+- [ ] **Digital Signature Integration**: Upload & tampilkan tanda tangan asli Bendahara di kwitansi.
+- [ ] **Donatur Database (Auto-Suggest)**: Rekam nama donatur lama untuk input lebih cepat & akurat.
 - [ ] **Security Enhancement**: Ganti Password Admin & PIN Hapus langsung dari Dashboard.
 - [ ] **Auto-Lock System**: Fitur logout otomatis setelah inaktivitas (Security First).
+
+## 🛡️ Phase 5: Enterprise & Automation (Advanced)
+- [ ] **Automated PDF Monthly Report**: Generate laporan LPJ bulanan format PDF siap posting/cetak.
+- [ ] **Offline-First Workflow**: Tetap bisa input data meski tanpa internet (Auto-sync saat online).
+- [ ] **Multi-Role Access**: Akun khusus "Auditor" (View only) untuk transparansi organisasi.
+- [ ] **Automated Cloud Backup**: Backup database otomatis ke Google Drive / Email setiap akhir bulan.
+- [ ] **Direct WA Gateway**: Kirim kwitansi otomatis ke WhatsApp donatur sesaat setelah disimpan.
+- [ ] **OCR Scanning**: Input data otomatis lewat foto nota fisik.
+- [ ] **Integrasi QRIS**: Terima donasi digital yang otomatis terbit kwitansi.
 
 ## 🎨 Design Vision
 - Fokus pada **Kejelasan & Kepercayaan** (Organization-First).

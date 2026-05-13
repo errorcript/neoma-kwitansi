@@ -13,6 +13,7 @@ interface ReceiptProps {
     tanggal: string;
     bendahara: string;
     unique_hash: string;
+    signature?: string;
   };
 }
 
@@ -140,7 +141,14 @@ export const ReceiptCard: React.FC<ReceiptProps> = ({ data }) => {
                  Bendahara
                </p>
             </div>
-            <div className="w-full border-b font-black uppercase truncate px-2 pb-0.5 text-[10px]" style={{ borderColor: '#353e4c', color: '#353e4c' }}>
+            <div className="w-full border-b font-black uppercase truncate px-2 pb-0.5 text-[10px] relative" style={{ borderColor: '#353e4c', color: '#353e4c' }}>
+              {data.signature && (
+                <img 
+                  src={data.signature} 
+                  alt="Signature" 
+                  className="absolute bottom-1/2 left-1/2 -translate-x-1/2 translate-y-1/2 h-16 object-contain mix-blend-multiply opacity-90" 
+                />
+              )}
               {data.bendahara}
             </div>
           </div>

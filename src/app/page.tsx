@@ -24,22 +24,27 @@ export default function Home() {
   const [receipts, setReceipts] = useState<ReceiptEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [bendaharaName, setBendaharaName] = useState("DIDIK SUBIYANTO");
+  const [bendaharaSignature, setBendaharaSignature] = useState("");
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+  const [donatorSuggestions, setDonatorSuggestions] = useState<string[]>([]);
+  const [isOffline, setIsOffline] = useState(false);
+  const [pendingSync, setPendingSync] = useState<number>(0);
 
   const fetchNextNumber = useCallback(async () => {
     try {
       const res = await fetch('/api/receipts/next-number');
       const data = await res.json();
-      if (data.success) return { number: data.next_number, bendahara: data.bendahara };
+      if (data.success) return { number: data.next_number, bendahara: data.bendahara, signature: data.signature };
     } catch (e) {
       return { 
         number: `${Date.now()}/PAG-DPM/MOBSOS/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
-        bendahara: "DIDIK SUBIYANTO"
+        bendahara: "DIDIK SUBIYANTO",
+        signature: ""
       };
     }
   }, []);
 
-  const createDefaultEntry = useCallback((nextNo?: string, bendahara?: string) => ({
+  const createDefaultEntry = useCallback((nextNo?: string, bendahara?: string, signature?: string) => ({
     no_kwitansi: nextNo || "LOADING...",
     nama_donatur: "",
     nominal: 0,
@@ -47,15 +52,36 @@ export default function Home() {
     penyerah: "",
     tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
     bendahara: bendahara || "DIDIK SUBIYANTO",
-    unique_hash: Math.random().toString(36).substring(2, 11)
+    unique_hash: Math.random().toString(36).substring(2, 11),
+    signature: signature || ""
   }), []);
 
   useEffect(() => {
     const init = async () => {
+      // Check offline status
+      setIsOffline(!navigator.onLine);
+      window.addEventListener('online', () => setIsOffline(false));
+      window.addEventListener('offline', () => setIsOffline(true));
+
       const data = await fetchNextNumber();
       if (data) {
         setBendaharaName(data.bendahara);
-        setReceipts([createDefaultEntry(data.number, data.bendahara)]);
+        setBendaharaSignature(data.signature || "");
+        setReceipts([createDefaultEntry(data.number, data.bendahara, data.signature)]);
+      }
+
+      // Fetch donator suggestions
+      try {
+        const res = await fetch('/api/receipts/donators');
+        const dData = await res.json();
+        if (dData.success) setDonatorSuggestions(dData.donators);
+      } catch (e) {}
+
+      // Check local storage for pending sync
+      const saved = localStorage.getItem('pending_receipts');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setPendingSync(parsed.length);
       }
     };
     init();
@@ -64,7 +90,7 @@ export default function Home() {
   const addRow = async () => {
     const data = await fetchNextNumber();
     if (data) {
-      setReceipts([...receipts, createDefaultEntry(data.number, data.bendahara)]);
+      setReceipts([...receipts, createDefaultEntry(data.number, data.bendahara, data.signature)]);
     }
   };
   const removeRow = (index: number) => {
@@ -157,6 +183,16 @@ export default function Home() {
       return;
     }
 
+    if (isOffline) {
+      // Save to local storage if offline
+      const existing = JSON.parse(localStorage.getItem('pending_receipts') || '[]');
+      const updated = [...existing, ...receipts];
+      localStorage.setItem('pending_receipts', JSON.stringify(updated));
+      setPendingSync(updated.length);
+      showToast("OFFLINE: DATA DISIMPAN LOKAL 💾", "success");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/receipts', {
@@ -166,11 +202,46 @@ export default function Home() {
       });
       if (res.ok) {
         showToast("DATA BERHASIL DISIMPAN! ✅", "success");
+        // Update suggestions locally
+        const newNames = receipts.map(r => r.nama_donatur);
+        setDonatorSuggestions(prev => Array.from(new Set([...prev, ...newNames])));
       } else {
         showToast("Gagal simpan data", "error");
       }
     } catch (err) {
       showToast("Kesalahan koneksi", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSync = async () => {
+    if (isOffline) {
+      showToast("MASIH OFFLINE, GAK BISA SYNC", "error");
+      return;
+    }
+
+    const saved = localStorage.getItem('pending_receipts');
+    if (!saved) return;
+
+    setLoading(true);
+    try {
+      const pendingData = JSON.parse(saved);
+      const res = await fetch('/api/receipts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receipts: pendingData }),
+      });
+      
+      if (res.ok) {
+        showToast(`${pendingData.length} DATA BERHASIL DISINKRON! 🔄`, "success");
+        localStorage.removeItem('pending_receipts');
+        setPendingSync(0);
+      } else {
+        showToast("Gagal sinkronisasi data", "error");
+      }
+    } catch (e) {
+      showToast("Gangguan koneksi saat sync", "error");
     } finally {
       setLoading(false);
     }
@@ -214,7 +285,20 @@ export default function Home() {
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nama Donatur</label>
-                        <input id="tour-input-form" type="text" value={r.nama_donatur} onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-bold text-sm" placeholder="Contoh: Bpk. Slamet" />
+                        <input 
+                          id="tour-input-form" 
+                          type="text" 
+                          list="donator-list"
+                          value={r.nama_donatur} 
+                          onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)} 
+                          className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-bold text-sm" 
+                          placeholder="Contoh: Bpk. Slamet" 
+                        />
+                        <datalist id="donator-list">
+                          {donatorSuggestions.map((name, i) => (
+                            <option key={i} value={name} />
+                          ))}
+                        </datalist>
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nominal Donasi</label>
@@ -248,9 +332,20 @@ export default function Home() {
                 <button id="tour-add-row" onClick={addRow} className="w-full border-2 border-dashed border-gray-200 py-4 rounded-3xl text-gray-400 font-bold hover:border-brand-primary hover:text-brand-primary transition-all">
                    <PlusCircle className="w-5 h-5 mx-auto" />
                 </button>
-                <button id="tour-save-db" onClick={handleSave} disabled={loading} className="w-full bg-brand-secondary text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
-                   {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Simpan Database
+                <button id="tour-save-db" onClick={handleSave} disabled={loading} className={cn(
+                  "w-full py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl transition-all flex items-center justify-center gap-2",
+                  isOffline ? "bg-amber-500 text-white" : "bg-brand-secondary text-white",
+                  loading && "opacity-50 cursor-not-allowed"
+                )}>
+                   {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} 
+                   {isOffline ? "Simpan Lokal (Offline)" : "Simpan Database"}
                 </button>
+
+                {pendingSync > 0 && !isOffline && (
+                  <button onClick={handleSync} className="w-full bg-emerald-600 text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl animate-pulse flex items-center justify-center gap-2">
+                    <RefreshCw className="w-5 h-5" /> Sinkron {pendingSync} Data Tertunda
+                  </button>
+                )}
              </div>
           </div>
 

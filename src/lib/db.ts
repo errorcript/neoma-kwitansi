@@ -20,6 +20,18 @@ export async function createTable() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS pengeluaran_logs (
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        item_pengeluaran TEXT NOT NULL,
+        nominal BIGINT NOT NULL,
+        kategori TEXT DEFAULT 'Operasional',
+        tanggal DATE DEFAULT CURRENT_DATE,
+        keterangan TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
     
     // Add index for performance on status and created_at if they don't exist
     await sql`CREATE INDEX IF NOT EXISTS idx_status_created ON donasi_logs(status, created_at DESC);`;
@@ -204,5 +216,20 @@ export const db = {
       VALUES (${key}, ${value})
       ON CONFLICT (key) DO UPDATE SET value = ${value};
     `;
+  },
+
+  getUniqueDonators: async () => {
+    try {
+      await createTable();
+      const { rows } = await sql`
+        SELECT DISTINCT nama_donatur 
+        FROM donasi_logs 
+        WHERE status = 'active' 
+        ORDER BY nama_donatur ASC;
+      `;
+      return rows.map(r => r.nama_donatur);
+    } catch (e) {
+      return [];
+    }
   }
 };
