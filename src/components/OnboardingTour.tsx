@@ -95,7 +95,7 @@ const TourContent = () => {
           element: '#tour-nav-settings', 
           popover: { 
             title: 'Pengaturan', 
-            description: 'Atur identitas organisasi atau ganti PIN keamanan di menu ini.', 
+            description: 'Update nama Bendahara yang bakal muncul otomatis di tiap kwitansi.', 
             side: "bottom", 
             align: 'end' 
           } 
