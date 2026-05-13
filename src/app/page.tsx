@@ -205,7 +205,7 @@ export default function Home() {
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nama Donatur</label>
-                        <input type="text" value={r.nama_donatur} onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-bold text-sm" placeholder="Contoh: Bpk. Slamet" />
+                        <input id="tour-input-form" type="text" value={r.nama_donatur} onChange={(e) => updateRow(idx, 'nama_donatur', e.target.value)} className="w-full px-4 py-3 bg-white rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-brand-primary font-bold text-sm" placeholder="Contoh: Bpk. Slamet" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nominal Donasi</label>
@@ -225,17 +225,17 @@ export default function Home() {
              </div>
 
              <div className="mt-8 flex flex-col gap-3">
-                <button onClick={addRow} className="w-full border-2 border-dashed border-gray-200 py-4 rounded-3xl text-gray-400 font-bold hover:border-brand-primary hover:text-brand-primary transition-all">
+                <button id="tour-add-row" onClick={addRow} className="w-full border-2 border-dashed border-gray-200 py-4 rounded-3xl text-gray-400 font-bold hover:border-brand-primary hover:text-brand-primary transition-all">
                    <PlusCircle className="w-5 h-5 mx-auto" />
                 </button>
-                <button onClick={handleSave} disabled={loading} className="w-full bg-brand-secondary text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+                <button id="tour-save-db" onClick={handleSave} disabled={loading} className="w-full bg-brand-secondary text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
                    {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Simpan Database
                 </button>
              </div>
           </div>
 
           <button 
-            onClick={handlePrint}
+            onClick={handlePrint} id="tour-print-all"
             className="w-full bg-brand-primary text-brand-secondary p-8 rounded-[40px] flex items-center justify-center gap-4 hover:opacity-95 transition-all shadow-xl shadow-brand-primary/20"
           >
              <Printer className="w-8 h-8" />
@@ -294,7 +294,7 @@ export default function Home() {
                       `Terima kasih atas partisipasinya! 🙏`;
                     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
                   }}
-                  className="absolute bottom-10 right-10 no-print bg-emerald-600 text-white px-6 py-3 rounded-2xl flex items-center gap-2 shadow-2xl hover:bg-emerald-700 transition-all font-black text-xs uppercase tracking-widest"
+                  className="absolute bottom-10 right-10 no-print bg-emerald-600 text-white px-6 py-3 rounded-2xl flex items-center gap-2 shadow-2xl hover:bg-emerald-700 transition-all font-black text-xs uppercase tracking-widest tour-share-wa"
                 >
                    <MessageSquare className="w-4 h-4" /> Share WhatsApp
                 </button>

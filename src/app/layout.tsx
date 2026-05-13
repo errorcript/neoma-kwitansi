@@ -31,6 +31,7 @@ export const viewport: Viewport = {
 };
 
 import { Header } from "@/components/Header";
+import { OnboardingTour } from "@/components/OnboardingTour";
 
 export default function RootLayout({
   children,
@@ -43,6 +44,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <OnboardingTour />
         <Header />
         {children}
       </body>

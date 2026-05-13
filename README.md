@@ -1,6 +1,6 @@
 # 💎 NEOMA SYSTEM - Official Kwitansi Paguyuban
 
-Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dharma Putra Mahesa**. Didesain dengan identitas visual resmi organisasi (Forest Green & White) dan presisi tinggi untuk kebutuhan cetak bukti donasi fisik.
+Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dharma Putra Mahesa**. Didesain dengan identitas visual resmi organisasi (Forest Green & White) dan presisi tinggi untuk kebutuhan cetak bukti donasi fisik maupun digital.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38B2AC?style=for-the-badge&logo=tailwind-css)
@@ -9,23 +9,23 @@ Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dh
 
 ## ✨ Fitur Unggulan
 
-- 🎨 **Official Organization Branding**: Antarmuka bersih dengan skema warna Hijau & Putih yang formal dan terpercaya.
-- 🖨️ **Precision A4 Printing (1/3 Split)**: Layout kwitansi yang presisi meniru dokumen fisik, dioptimalkan untuk dibagi menjadi 3 bagian dalam satu lembar A4.
-- 🔍 **QR Verification System**: Setiap kwitansi memiliki kode QR unik yang dapat di-scan publik untuk memverifikasi keaslian donasi secara real-time.
-- 🚀 **Bulk Entry System**: Input data donatur massal (Nama, Nominal) untuk efisiensi admin (Anti-Mager workflow).
-- 📊 **Dashboard Rekapitulasi**: Monitoring total dana terkumpul dan log transaksi harian secara transparan.
-- ⚡ **Extreme Performance**: Optimasi Database Indexing & Initialization Flag untuk loading data kilat (< 1 detik).
-- 🛡️ **Secure API Architecture**: Keamanan data menggunakan Vercel Postgres dengan sistem otentikasi Master Admin.
-- 📲 **WhatsApp Sharing**: Bagikan bukti kwitansi digital langsung ke WhatsApp donatur dengan format yang rapi.
+- 🎨 **Official Organization Branding**: Antarmuka bersih dengan skema warna Hijau & Putih yang formal.
+- 🖨️ **Precision A4 Printing**: Layout kwitansi presisi (1/3 A4 split), dioptimalkan untuk cetak fisik masal.
+- 🖼️ **Auto-Capture Receipt Image**: Fitur "Share WhatsApp" otomatis meng-capture kartu kwitansi menjadi gambar PNG (Blob) yang siap kirim tanpa pecah.
+- 🔢 **Professional Sequential Numbering**: Penomoran kwitansi otomatis (`001/PAG-DPM/MOBSOS/...`) yang reset tiap bulan.
+- 🔍 **QR Verification System**: Scan QR Code unik untuk verifikasi keaslian donasi secara real-time.
+- 📊 **Dashboard Rekap & Export**: Monitoring statistik dan export data ke Excel Pro untuk pelaporan bulanan.
+- 🛡️ **Double Security Hub**: Akses admin terproteksi dan penghapusan data wajib menggunakan PIN khusus.
+- 📱 **PWA Support**: Bisa diinstal di Android/iOS layaknya aplikasi native langsung dari browser.
 
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
-- **Styling**: Tailwind CSS v4 (Organization Color Palette)
+- **Styling**: Tailwind CSS v4
 - **Database**: Vercel Postgres (Serverless SQL)
-- **PDF Engine**: jsPDF & html2canvas
+- **PDF/Image Engine**: html2canvas (Blob Format) & jsPDF
 - **Icons**: Lucide React
-- **Validation**: QR Code Verification Engine
+- **PWA**: Web Manifest & Service Worker
 
 ## 🚀 Cara Instalasi
 
@@ -41,6 +41,7 @@ Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dh
    ```env
    POSTGRES_URL="your-vercel-postgres-url"
    ADMIN_PASSWORD="your-secure-password"
+   DELETE_PIN="your-delete-pin"
    ```
 4. Jalankan aplikasi:
    ```bash
@@ -49,7 +50,7 @@ Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dh
 
 ## 📜 Lisensi
 
-Eksklusif dikembangkan oleh **Neoma Creative Hub** untuk **Paguyuban Dharma Putra Mahesa**.
+Eksklusif dikembangkan oleh **Neoma Creative Hub** (Henri S, S.Kom) untuk **Paguyuban Dharma Putra Mahesa**.
 
 ---
-*Built with ❤️ by Antigravity for Neoma.*
+*Built with ❤️ by Antigravity for Neoma Creative Hub.*

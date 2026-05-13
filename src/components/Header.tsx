@@ -41,6 +41,7 @@ export const Header = () => {
               return (
                 <Link
                   key={item.path}
+                  id={item.name === "Rekapitulasi" ? "tour-nav-rekap" : undefined}
                   href={item.path}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
