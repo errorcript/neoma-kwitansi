@@ -23,40 +23,47 @@ interface ReceiptEntry {
 export default function Home() {
   const [receipts, setReceipts] = useState<ReceiptEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [bendaharaName, setBendaharaName] = useState("DIDIK SUBIYANTO");
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
-  const fetchNextNumber = useCallback(async () => {
-    try {
       const res = await fetch('/api/receipts/next-number');
       const data = await res.json();
-      if (data.success) return data.next_number;
+      if (data.success) return { number: data.next_number, bendahara: data.bendahara };
     } catch (e) {
-      return `${Date.now()}/PAG-DPM/MOBSOS/${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
+      return { 
+        number: `${Date.now()}/PAG-DPM/MOBSOS/${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+        bendahara: "DIDIK SUBIYANTO"
+      };
     }
   }, []);
 
-  const createDefaultEntry = useCallback((nextNo?: string) => ({
+  const createDefaultEntry = useCallback((nextNo?: string, bendahara?: string) => ({
     no_kwitansi: nextNo || "LOADING...",
     nama_donatur: "",
     nominal: 0,
     keperluan: "Sumbangan Donatur Mobsos",
     penyerah: "",
     tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-    bendahara: "DIDIK SUBIYANTO",
+    bendahara: bendahara || "DIDIK SUBIYANTO",
     unique_hash: Math.random().toString(36).substring(2, 11)
   }), []);
 
   useEffect(() => {
     const init = async () => {
-      const nextNo = await fetchNextNumber();
-      setReceipts([createDefaultEntry(nextNo)]);
+      const data = await fetchNextNumber();
+      if (data) {
+        setBendaharaName(data.bendahara);
+        setReceipts([createDefaultEntry(data.number, data.bendahara)]);
+      }
     };
     init();
   }, [createDefaultEntry, fetchNextNumber]);
 
   const addRow = async () => {
-    const nextNo = await fetchNextNumber();
-    setReceipts([...receipts, createDefaultEntry(nextNo)]);
+    const data = await fetchNextNumber();
+    if (data) {
+      setReceipts([...receipts, createDefaultEntry(data.number, data.bendahara)]);
+    }
   };
   const removeRow = (index: number) => {
     if (receipts.length > 1) setReceipts(receipts.filter((_, i) => i !== index));

@@ -11,10 +11,13 @@ export async function GET() {
     
     const formattedNumber = `${nextNum}/PAG-DPM/MOBSOS/${monthRomawi}/${year}`;
     
+    const bendahara = await db.getSetting("bendahara_name") || "DIDIK SUBIYANTO";
+    
     return NextResponse.json({ 
       success: true, 
       next_number: formattedNumber,
-      sequence: nextNum
+      sequence: nextNum,
+      bendahara: bendahara
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

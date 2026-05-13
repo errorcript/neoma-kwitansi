@@ -17,6 +17,7 @@ export default function RekapPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [stats, setStats] = useState({ total_count: 0, total_amount: 0 });
   const [loading, setLoading] = useState(true);
+  const [bendaharaName, setBendaharaName] = useState("DIDIK SUBIYANTO");
   const [search, setSearch] = useState("");
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   
@@ -51,6 +52,7 @@ export default function RekapPage() {
       if (res.ok) {
         setLogs(data.logs || []);
         setStats(data.stats || { total_count: 0, total_amount: 0 });
+        setBendaharaName(data.bendahara || "DIDIK SUBIYANTO");
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -271,7 +273,7 @@ export default function RekapPage() {
             <ReceiptCard data={{
               ...sharingLog,
               tanggal: new Date(sharingLog.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-              bendahara: "DIDIK SUBIYANTO"
+              bendahara: bendaharaName
             }} />
           </div>
         </div>

@@ -11,8 +11,9 @@ export async function GET(request: Request) {
 
     const logs = await db.getAllLogs(start, end);
     const stats = await db.getStats(start, end);
+    const bendahara = await db.getSetting("bendahara_name") || "DIDIK SUBIYANTO";
     
-    return NextResponse.json({ logs, stats });
+    return NextResponse.json({ logs, stats, bendahara });
   } catch (error: any) {
     console.error('Error fetching receipts list:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
