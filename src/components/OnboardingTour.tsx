@@ -1,21 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, Suspense } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 
 export const OnboardingTour = () => {
+  return (
+    <Suspense fallback={null}>
+      <TourContent />
+    </Suspense>
+  );
+};
+
+const TourContent = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Hanya jalankan di homepage agar element-nya lengkap
     if (pathname !== '/') return;
 
+    // Cek apakah dipaksa lewat link (?tutorial=true)
+    const isForced = searchParams.get('tutorial') === 'true';
+
     // Cek apakah sudah pernah liat tutorial
     const hasSeenTutorial = localStorage.getItem("neoma_tour_completed");
     
-    if (hasSeenTutorial) return;
+    if (hasSeenTutorial && !isForced) return;
 
     const driverObj = driver({
       showProgress: true,
