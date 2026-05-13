@@ -26,6 +26,8 @@ export default function Home() {
   const [bendaharaName, setBendaharaName] = useState("DIDIK SUBIYANTO");
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
+  const fetchNextNumber = useCallback(async () => {
+    try {
       const res = await fetch('/api/receipts/next-number');
       const data = await res.json();
       if (data.success) return { number: data.next_number, bendahara: data.bendahara };
