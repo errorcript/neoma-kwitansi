@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, BarChart3, Settings, LogOut } from "lucide-react";
+import { FileText, BarChart3, Settings, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Header = () => {
@@ -25,7 +25,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="no-print bg-brand-secondary text-white sticky top-0 z-50 shadow-lg border-b border-white/5">
+    <header className="no-print bg-brand-secondary text-white sticky top-0 z-50 shadow-lg border-b border-white/5 hidden sm:block">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-brand-primary/20">
@@ -60,12 +60,16 @@ export const Header = () => {
           <div className="w-px h-8 bg-white/10 mx-4 hidden sm:block" />
 
           <button
-            onClick={handleLogout}
-            id="tour-logout"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all"
+            onClick={() => {
+              const url = new URL(window.location.href);
+              url.searchParams.set('tutorial', 'true');
+              window.location.href = url.toString();
+            }}
+            id="tour-help-pc"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-brand-primary hover:bg-brand-primary/10 transition-all"
           >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Keluar</span>
+            <HelpCircle className="w-4 h-4" />
+            <span className="hidden sm:inline">Bantuan</span>
           </button>
         </div>
       </div>

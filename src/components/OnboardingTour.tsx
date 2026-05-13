@@ -18,39 +18,33 @@ const TourContent = () => {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Hanya jalankan di homepage agar element-nya lengkap
-    if (pathname !== '/') return;
-
     // Cek apakah dipaksa lewat link (?tutorial=true)
     const isForced = searchParams.get('tutorial') === 'true';
 
-    // Cek apakah sudah pernah liat tutorial
-    const hasSeenTutorial = localStorage.getItem("neoma_tour_completed");
+    // Cek apakah sudah pernah liat tutorial di halaman ini
+    const storageKey = `neoma_tour_${pathname.replace(/\//g, 'root')}_completed`;
+    const hasSeenTutorial = localStorage.getItem(storageKey);
     
     if (hasSeenTutorial && !isForced) return;
 
-    const driverObj = driver({
-      showProgress: true,
-      animate: true,
-      allowClose: true,
-      doneBtnText: 'Selesai',
-      nextBtnText: 'Lanjut',
-      prevBtnText: 'Kembali',
-      steps: [
+    let steps: any[] = [];
+
+    if (pathname === '/') {
+      steps = [
         { 
-          element: '#tour-add-row', 
+          element: '#tour-input-form', 
           popover: { 
-            title: 'Tambah Baris', 
-            description: 'Klik ini buat nambah baris donatur baru. Bisa input banyak sekaligus biar gak capek!', 
+            title: 'Formulir Input Donasi', 
+            description: 'Silakan isi data donatur (Nama, Nominal, dan Keperluan) secara teliti pada kolom yang tersedia.', 
             side: "bottom", 
             align: 'start' 
           } 
         },
         { 
-          element: '#tour-input-form', 
+          element: '#tour-add-row', 
           popover: { 
-            title: 'Input Data', 
-            description: 'Isi nama, nominal, dan keperluan donasi di sini. Format nominal otomatis rapi kok.', 
+            title: 'Input Massal', 
+            description: 'Gunakan tombol <b>Tambah Baris</b> jika Anda ingin menginput banyak donatur sekaligus dalam satu transaksi untuk efisiensi waktu.', 
             side: "bottom", 
             align: 'start' 
           } 
@@ -59,7 +53,7 @@ const TourContent = () => {
           element: '#tour-save-db', 
           popover: { 
             title: 'Simpan Database', 
-            description: '<span style="color: #ef4444; font-weight: 900;">PENTING!</span> Selalu klik Simpan Database dulu biar datanya masuk ke laporan. Kalo cuma di-share tanpa simpan, datanya gak bakal tercatat!', 
+            description: '<span style="color: #ef4444; font-weight: 900;">[WAJIB SIMPAN!]</span> Data Anda <b>TIDAK AKAN TERSIMPAN</b> jika tidak menekan tombol ini. Pastikan klik Simpan agar transaksi tercatat resmi di sistem.', 
             side: "top", 
             align: 'start' 
           } 
@@ -67,8 +61,8 @@ const TourContent = () => {
         { 
           element: '.tour-share-wa', 
           popover: { 
-            title: 'Share WhatsApp', 
-            description: 'Klik ini buat otomatis kirim gambar kwitansi ke nomor donatur. Gak perlu screenshot manual lagi!', 
+            title: 'Distribusi WhatsApp', 
+            description: 'Kirim bukti digital langsung ke donatur. Sistem akan <b>otomatis mengunduh gambar PNG</b> dan menyiapkan template pesan WhatsApp.', 
             side: "left", 
             align: 'start' 
           } 
@@ -76,52 +70,136 @@ const TourContent = () => {
         { 
           element: '#tour-print-all', 
           popover: { 
-            title: 'Cetak Masal', 
-            description: 'Mau cetak ke printer? Klik ini buat layout 3 kwitansi per lembar A4.', 
+            title: 'Cetak Fisik', 
+            description: 'Gunakan fitur ini untuk cetak massal. Layout telah dioptimalkan untuk memuat 3 kwitansi dalam satu lembar kertas A4.', 
             side: "top", 
             align: 'start' 
           } 
         },
+      ];
+    } else if (pathname === '/rekap') {
+      steps = [
         { 
-          element: '#tour-nav-rekap', 
+          element: '#tour-rekap-stats', 
           popover: { 
-            title: 'Menu Rekapitulasi', 
-            description: 'Semua data yang udah disimpan bisa dicek di sini. Ada statistik dan fitur export Excel juga.', 
+            title: 'Dashboard Keuangan', 
+            description: 'Monitor ringkasan Kas Masuk, Keluar, dan Sisa Saldo Kas secara real-time di panel indikator ini.', 
+            side: "bottom", 
+            align: 'start' 
+          } 
+        },
+        { 
+          element: '#tour-rekap-add-expense', 
+          popover: { 
+            title: 'Catat Pengeluaran', 
+            description: '<span style="color: #3b82f6; font-weight: 900;">[INPUT UANG KELUAR]</span> Klik ikon <b>"+"</b> di kartu Pengeluaran untuk mencatat penggunaan dana (Operasional, Santunan, dll).', 
+            side: "bottom", 
+            align: 'start' 
+          } 
+        },
+        { 
+          element: '#tour-rekap-tabs', 
+          popover: { 
+            title: 'Navigasi Tab', 
+            description: 'Beralih tampilan antara <b>Data Donasi</b> (Uang Masuk) dan <b>Catatan Pengeluaran</b> (Uang Keluar) dengan mudah.', 
+            side: "bottom", 
+            align: 'start' 
+          } 
+        },
+        { 
+          element: '#tour-rekap-search', 
+          popover: { 
+            title: 'Pencarian Cepat', 
+            description: 'Gunakan kolom pencarian untuk menemukan data donatur atau nomor kwitansi secara instan tanpa perlu memuat ulang halaman.', 
+            side: "bottom", 
+            align: 'start' 
+          } 
+        },
+        { 
+          element: '#tour-rekap-filters', 
+          popover: { 
+            title: 'Filter Periode', 
+            description: 'Gunakan filter tanggal untuk menampilkan transaksi dalam rentang periode tertentu (Misal: Laporan Bulanan).', 
+            side: "bottom", 
+            align: 'start' 
+          } 
+        },
+        { 
+          element: '#tour-rekap-lpj', 
+          popover: { 
+            title: 'LPJ Instan', 
+            description: '<span style="color: #10b981; font-weight: 900;">[FITUR UNGGULAN]</span> Hasilkan laporan visual profesional (PNG) yang merangkum keuangan bulan ini untuk dibagikan ke warga.', 
             side: "bottom", 
             align: 'end' 
           } 
         },
         { 
-          element: '#tour-nav-settings', 
+          element: '#tour-rekap-excel', 
           popover: { 
-            title: 'Pengaturan', 
-            description: 'Update nama Bendahara yang bakal muncul otomatis di tiap kwitansi.', 
+            title: 'Ekspor Data', 
+            description: 'Gunakan fitur ini untuk mengunduh seluruh database ke dalam format Excel (XLSX) guna pengolahan data lebih lanjut.', 
             side: "bottom", 
             align: 'end' 
+          } 
+        },
+        { 
+          element: '#tour-rekap-actions', 
+          popover: { 
+            title: 'Audit Data', 
+            description: 'Gunakan ikon Pensil untuk <b>Edit</b> atau ikon Sampah untuk <b>Hapus</b>. Penghapusan memerlukan PIN Admin demi keamanan data.', 
+            side: "left", 
+            align: 'start' 
+          } 
+        },
+      ];
+    } else if (pathname === '/settings') {
+      steps = [
+        { 
+          element: '#tour-settings-identity', 
+          popover: { 
+            title: 'Identitas & Tanda Tangan', 
+            description: 'Atur nama resmi Bendahara dan unggah foto tanda tangan asli Anda agar kwitansi digital memiliki kredibilitas hukum yang sah.', 
+            side: "bottom", 
+            align: 'start' 
           } 
         },
         { 
           element: '#tour-logout', 
           popover: { 
-            title: 'Keluar Sistem', 
-            description: 'Jangan lupa keluar kalo pake komputer umum biar akses admin tetep aman.', 
-            side: "bottom", 
-            align: 'end' 
+            title: 'Selesai Sesi', 
+            description: '<span style="color: #ef4444; font-weight: 900;">[LOGOUT]</span> Gunakan tombol ini untuk keluar dari sistem admin secara aman setelah Anda selesai bekerja.', 
+            side: "top", 
+            align: 'start' 
           } 
         },
-      ],
+      ];
+    }
+
+    if (steps.length === 0) return;
+
+    const driverObj = driver({
+      showProgress: true,
+      animate: true,
+      allowClose: true,
+      doneBtnText: 'Selesai',
+      nextBtnText: 'Lanjut',
+      prevBtnText: 'Kembali',
+      steps: steps,
       onDestroyed: () => {
-        localStorage.setItem("neoma_tour_completed", "true");
+        localStorage.setItem(storageKey, "true");
+        // Clear tutorial param from URL without reloading
+        const url = new URL(window.location.href);
+        url.searchParams.delete('tutorial');
+        window.history.replaceState({}, '', url.toString());
       }
     });
 
-    // Jalankan tour setelah delay dikit biar element render sempurna
     const timer = setTimeout(() => {
       driverObj.drive();
-    }, 1500);
+    }, 1000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname, searchParams]);
 
   return null;
 };

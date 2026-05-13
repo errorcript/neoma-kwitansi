@@ -62,8 +62,8 @@ export const MonthlySummary: React.FC<SummaryProps> = ({ data }) => {
                 <td className="p-4 font-bold text-slate-400">{i + 1}</td>
                 <td className="p-4">{new Date(log.created_at || log.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</td>
                 <td className="p-4 font-bold uppercase">{log.nama_donatur || log.item_pengeluaran}</td>
-                <td className={cn("p-4 text-right font-black", log.nama_donatur ? "text-emerald-600" : "text-rose-600")}>
-                  {log.nama_donatur ? "+" : "-"} {formatCurrency(Number(log.nominal))}
+                <td className={cn("p-4 text-right font-black", log.type === 'income' ? "text-emerald-600" : "text-rose-600")}>
+                  {log.type === 'income' ? "+" : "-"} {formatCurrency(Number(log.nominal))}
                 </td>
               </tr>
             ))}

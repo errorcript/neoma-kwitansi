@@ -364,6 +364,12 @@ export default function RekapPage() {
     setIsGeneratingSummary(true);
     setShowSummaryPreview(true);
     
+    // Gabungkan logs dan expenseLogs untuk ringkasan
+    const combinedLogs = [
+      ...logs.map(l => ({ ...l, type: 'income' })),
+      ...expenseLogs.map(e => ({ ...e, type: 'expense' }))
+    ].sort((a, b) => new Date(b.created_at || b.tanggal).getTime() - new Date(a.created_at || a.tanggal).getTime());
+
     setTimeout(async () => {
       const fileName = `LPJ_Paguyuban_${new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }).replace(' ', '_')}`;
       await downloadReceiptImage('monthly-summary-report', fileName);
@@ -371,7 +377,7 @@ export default function RekapPage() {
       showToast("LAPORAN LPJ SIAP! 📄", "success");
       setIsGeneratingSummary(false);
       setShowSummaryPreview(false);
-    }, 1000);
+    }, 1500); // Tambah delay biar rendering mantap
   };
 
   const handleLogout = () => {
@@ -398,15 +404,18 @@ export default function RekapPage() {
         </div>
       )}
 
-      {/* 📊 SUMMARY REPORT PREVIEW (Hidden) */}
+      {/* 📊 SUMMARY REPORT PREVIEW (Hidden but renderable) */}
       {showSummaryPreview && (
-        <div className="fixed -left-[4000px] top-0">
+        <div className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none">
           <MonthlySummary data={{
             month: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
             income: financialStats.total_income,
             expense: financialStats.total_expense,
             balance: financialStats.balance,
-            logs: logs,
+            logs: [
+              ...logs.map(l => ({ ...l, type: 'income' })),
+              ...expenseLogs.map(e => ({ ...e, type: 'expense' }))
+            ].sort((a, b) => new Date(b.created_at || b.tanggal).getTime() - new Date(a.created_at || a.tanggal).getTime()),
             bendahara: bendaharaName,
             signature: signature
           }} />
@@ -678,6 +687,7 @@ export default function RekapPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <button 
+              id="tour-rekap-lpj"
               onClick={handleGenerateSummary}
               disabled={isGeneratingSummary}
               className="flex items-center gap-2 px-6 py-3 bg-brand-secondary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
@@ -685,6 +695,7 @@ export default function RekapPage() {
               {isGeneratingSummary ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} LPJ Instan
             </button>
             <button 
+              id="tour-rekap-excel"
               onClick={handleExportExcel}
               className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all"
             >
@@ -697,7 +708,7 @@ export default function RekapPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="tour-rekap-stats" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
            <div className="bg-brand-primary p-6 rounded-3xl shadow-lg border border-brand-primary/20 relative overflow-hidden group">
               <p className="text-[9px] font-black uppercase text-brand-secondary/60 mb-1">Total Kas Masuk</p>
               <h2 className="text-3xl font-black text-brand-secondary">{formatCurrency(financialStats.total_income)}</h2>
@@ -710,6 +721,7 @@ export default function RekapPage() {
            
            <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 relative overflow-hidden group">
               <button 
+                id="tour-rekap-add-expense"
                 onClick={() => setShowExpenseModal(true)}
                 className="absolute top-4 right-4 p-2 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
               >
@@ -726,7 +738,7 @@ export default function RekapPage() {
         </div>
 
         {/* Tab Toggle */}
-        <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 w-fit">
+        <div id="tour-rekap-tabs" className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 w-fit">
            <button 
              onClick={() => setActiveTab('donasi')}
              className={cn(
@@ -753,6 +765,7 @@ export default function RekapPage() {
                <div className="relative w-full lg:w-80">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
+                    id="tour-rekap-search"
                     type="text" 
                     placeholder={activeTab === 'donasi' ? "Cari donatur/nomor..." : "Cari item pengeluaran..."}
                     value={search}
@@ -761,7 +774,7 @@ export default function RekapPage() {
                   />
                </div>
 
-               <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+               <div id="tour-rekap-filters" className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                   <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100">
                      <Calendar className="w-4 h-4 text-gray-400" />
                      <input 
@@ -820,7 +833,7 @@ export default function RekapPage() {
                            <td className="px-8 py-6 font-black text-brand-secondary uppercase">{log.nama_donatur}</td>
                            <td className="px-8 py-6 text-right font-black text-brand-secondary text-lg">{formatCurrency(Number(log.nominal))}</td>
                            <td className="px-8 py-6">
-                              <div className="flex items-center justify-center gap-1">
+                              <div id="tour-rekap-actions" className="flex items-center justify-center gap-1">
                                  <button onClick={() => setEditingLog(log)} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
                                     <Edit3 className="w-5 h-5" />
                                  </button>

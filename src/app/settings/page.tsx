@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { Settings, Shield, Database } from "lucide-react";
 import SettingsForm from "@/components/SettingsForm";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export default async function SettingsPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-10">
-          <div className="glass-card rounded-[3rem] overflow-hidden shadow-2xl border-white/60 animate-in fade-in zoom-in duration-700 delay-100 bg-white">
+          <div id="tour-settings-identity" className="glass-card rounded-[3rem] overflow-hidden shadow-2xl border-white/60 animate-in fade-in zoom-in duration-700 delay-100 bg-white">
             <div className="p-10 border-b border-slate-100/50 bg-white/40 backdrop-blur-sm flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <div className="w-3 h-10 bg-brand-primary rounded-full shadow-lg shadow-brand-primary/20"></div>
@@ -52,6 +53,8 @@ export default async function SettingsPage() {
               updateAction={updateSettings} 
             />
           </div>
+
+          <LogoutButton />
 
           {/* Additional Info Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
