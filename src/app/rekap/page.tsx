@@ -16,8 +16,10 @@ import { MonthlySummary } from "@/components/MonthlySummary";
 export default function RekapPage() {
   const [mounted, setMounted] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
+  const [expenseLogs, setExpenseLogs] = useState<any[]>([]);
   const [stats, setStats] = useState({ total_count: 0, total_amount: 0 });
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'donasi' | 'pengeluaran'>('donasi');
   const [bendaharaName, setBendaharaName] = useState("DIDIK SUBIYANTO");
   const [search, setSearch] = useState("");
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
@@ -31,7 +33,9 @@ export default function RekapPage() {
   const [showSummaryPreview, setShowSummaryPreview] = useState(false);
   
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmDeleteExpenseId, setConfirmDeleteExpenseId] = useState<string | null>(null);
   const [editingLog, setEditingLog] = useState<any | null>(null);
+  const [editingExpense, setEditingExpense] = useState<any | null>(null);
   const [pinInput, setPinInput] = useState("");
   
   // Date Filters
@@ -60,6 +64,7 @@ export default function RekapPage() {
       const data = await res.json();
       if (res.ok) {
         setLogs(data.logs || []);
+        setExpenseLogs(data.expense_logs || []);
         setStats(data.stats || { total_count: 0, total_amount: 0 });
         setBendaharaName(data.bendahara || "DIDIK SUBIYANTO");
         setSignature(data.signature || "");
@@ -93,35 +98,25 @@ export default function RekapPage() {
     }
 
     try {
-      // Menyiapkan data untuk Excel dengan format profesional
       const excelData = logs.map((log, index) => ({
         "NO": index + 1,
         "TANGGAL": new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
         "NO KWITANSI": log.no_kwitansi,
         "NAMA DONATUR": log.nama_donatur.toUpperCase(),
-        "NOMINAL (Rp)": Number(log.nominal), // Pastikan format angka agar bisa di-SUM di Excel
+        "NOMINAL (Rp)": Number(log.nominal),
         "KEPERLUAN": log.keperluan,
         "STATUS": "VERIFIED"
       }));
 
-      // Membuat workbook dan worksheet
       const worksheet = XLSX.utils.json_to_sheet(excelData);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Donasi");
 
-      // Mengatur lebar kolom agar rapi (Ready to Use!)
       const wscols = [
-        { wch: 5 },  // NO
-        { wch: 20 }, // TANGGAL
-        { wch: 25 }, // NO KWITANSI
-        { wch: 35 }, // NAMA DONATUR
-        { wch: 15 }, // NOMINAL
-        { wch: 40 }, // KEPERLUAN
-        { wch: 10 }  // STATUS
+        { wch: 5 }, { wch: 20 }, { wch: 25 }, { wch: 35 }, { wch: 15 }, { wch: 40 }, { wch: 10 }
       ];
       worksheet["!cols"] = wscols;
 
-      // Download file
       const fileName = `Laporan_Donasi_Paguyuban_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(workbook, fileName);
       
@@ -209,6 +204,78 @@ export default function RekapPage() {
     }
   };
 
+  const handleUpdateExpense = async () => {
+    if (!editingExpense) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetch('/api/expenses/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          id: editingExpense.id, 
+          data: editingExpense 
+        }),
+      });
+      
+      if (res.ok) {
+        showToast("PENGELUARAN DIUPDATE! ✨", "success");
+        setEditingExpense(null);
+        fetchData();
+      } else {
+        showToast("GAGAL UPDATE", "error");
+      }
+    } catch (err) {
+      showToast("GANGGUAN KONEKSI", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const executeDeleteExpense = async () => {
+    try {
+      const verifyRes = await fetch('/api/auth/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: pinInput }),
+      });
+
+      if (!verifyRes.ok) {
+        showToast("PIN SALAH! ❌", "error");
+        setPinInput("");
+        return;
+      }
+    } catch (e) {
+      showToast("GANGGUAN KEAMANAN", "error");
+      return;
+    }
+
+    const id = confirmDeleteExpenseId;
+    if (!id) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/expenses/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      
+      if (res.ok) {
+        showToast("PENGELUARAN DIHAPUS! 🗑️", "success");
+        setConfirmDeleteExpenseId(null);
+        setPinInput("");
+        fetchData();
+      } else {
+        showToast("GAGAL HAPUS", "error");
+      }
+    } catch (err) {
+      showToast("GANGGUAN KONEKSI", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const downloadReceiptImage = async (id: string, fileName: string) => {
     const element = document.getElementById(id);
     if (!element) return;
@@ -250,24 +317,17 @@ export default function RekapPage() {
   };
 
   const handleShareWA = async (log: any) => {
-    // 1. Siapkan data untuk capture
     setSharingLog(log);
-    
-    // 2. Tunggu sebentar biar render selesai
     setTimeout(async () => {
       const safeName = (log.nama_donatur || "DONATUR").replace(/[^a-z0-9]/gi, '_').toUpperCase();
       const fileName = `Kwitansi_${log.no_kwitansi.split('/')[0]}_${safeName}`;
       await downloadReceiptImage('rekap-share-capture', fileName);
-      
-      // 3. Buka WhatsApp
       const message = `Halo *${log.nama_donatur}*, ini adalah kwitansi resmi dari *Paguyuban Dharma Putra Mahesa* Desa Kalikebo.\n\n` +
         `No: ${log.no_kwitansi}\n` +
         `Nominal: ${formatCurrency(Number(log.nominal))}\n\n` +
         `Cek: https://kwitansi.neoma.space/verify/${log.unique_hash}\n\n` +
         `Terima kasih! 🙏`;
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
-      
-      // 4. Bersihkan
       setSharingLog(null);
     }, 600);
   };
@@ -314,11 +374,6 @@ export default function RekapPage() {
     }, 1000);
   };
 
-  const filteredLogs = logs.filter(log => 
-    (log.nama_donatur?.toLowerCase() || "").includes(search.toLowerCase()) ||
-    (log.no_kwitansi?.toLowerCase() || "").includes(search.toLowerCase())
-  );
-
   const handleLogout = () => {
     document.cookie = "admin_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     window.location.href = "/login";
@@ -358,9 +413,8 @@ export default function RekapPage() {
         </div>
       )}
       
-      {/* ✏️ EDIT MODAL */}
+      {/* ✏️ EDIT MODAL DONASI */}
       {editingLog && (
-        // ... (existing edit modal code)
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
            <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full p-8 border border-gray-100 animate-in zoom-in-95 duration-200">
               <div className="flex justify-between items-start mb-6">
@@ -416,7 +470,55 @@ export default function RekapPage() {
         </div>
       )}
 
-      {/* 🛡️ SECURITY MODAL (DELETE) */}
+      {/* 💸 EDIT EXPENSE MODAL */}
+      {editingExpense && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+           <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full p-8 border border-gray-100 animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-start mb-6">
+                 <div className="bg-brand-primary/10 p-3 rounded-2xl">
+                    <Edit3 className="w-6 h-6 text-brand-primary" />
+                 </div>
+                 <button onClick={() => setEditingExpense(null)} className="p-2 hover:bg-gray-100 rounded-full">
+                    <X className="w-5 h-5 text-gray-400" />
+                 </button>
+              </div>
+              <h2 className="text-xl font-black text-brand-secondary mb-6 uppercase tracking-tight">Edit Pengeluaran</h2>
+              
+              <div className="space-y-4 mb-8">
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Item Pengeluaran</label>
+                    <input 
+                      type="text" 
+                      value={editingExpense.item_pengeluaran}
+                      onChange={(e) => setEditingExpense({...editingExpense, item_pengeluaran: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-primary font-bold"
+                    />
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nominal</label>
+                    <input 
+                      type="text" 
+                      value={editingExpense.nominal ? Number(editingExpense.nominal).toLocaleString('id-ID') : ""}
+                      onChange={(e) => {
+                         const val = e.target.value.replace(/\./g, "");
+                         if (!isNaN(Number(val))) {
+                            setEditingExpense({...editingExpense, nominal: Number(val)});
+                         }
+                      }}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-primary font-black"
+                    />
+                 </div>
+              </div>
+
+              <div className="flex gap-3">
+                 <button onClick={() => setEditingExpense(null)} className="flex-1 py-4 font-bold text-gray-400 uppercase text-xs">Batal</button>
+                 <button onClick={handleUpdateExpense} className="flex-2 bg-brand-secondary text-white py-4 px-6 rounded-2xl font-black uppercase text-xs shadow-lg">Simpan</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* 🛡️ SECURITY MODAL (DELETE DONASI) */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
            <div className="bg-white rounded-[32px] shadow-2xl max-w-sm w-full p-8 border-4 border-rose-500 animate-in zoom-in-95 duration-200">
@@ -429,7 +531,7 @@ export default function RekapPage() {
                  </button>
               </div>
               <h2 className="text-xl font-black text-brand-secondary mb-2 uppercase tracking-tight">Hapus Data?</h2>
-              <p className="text-gray-500 text-sm mb-6">Masukkan PIN Admin untuk konfirmasi penghapusan permanen.</p>
+              <p className="text-gray-500 text-sm mb-6">Masukkan PIN Admin untuk konfirmasi.</p>
               
               <input 
                 type="password" 
@@ -448,7 +550,39 @@ export default function RekapPage() {
         </div>
       )}
 
-      {/* 💸 EXPENSE MODAL */}
+      {/* 🛡️ SECURITY MODAL (DELETE EXPENSE) */}
+      {confirmDeleteExpenseId && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+           <div className="bg-white rounded-[32px] shadow-2xl max-w-sm w-full p-8 border-4 border-rose-500 animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-start mb-6">
+                 <div className="bg-rose-100 p-3 rounded-2xl">
+                    <Trash2 className="w-6 h-6 text-rose-600" />
+                 </div>
+                 <button onClick={() => setConfirmDeleteExpenseId(null)} className="p-2 hover:bg-gray-100 rounded-full">
+                    <X className="w-5 h-5 text-gray-400" />
+                 </button>
+              </div>
+              <h2 className="text-xl font-black text-brand-secondary mb-2 uppercase tracking-tight">Hapus Pengeluaran?</h2>
+              <p className="text-gray-500 text-sm mb-6">Masukkan PIN Admin untuk konfirmasi.</p>
+              
+              <input 
+                type="password" 
+                placeholder="PIN" 
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                autoFocus
+                className="w-full text-center text-3xl tracking-[1em] font-black py-4 bg-gray-100 rounded-2xl border-none focus:ring-2 focus:ring-rose-500 mb-6"
+              />
+
+              <div className="flex gap-3">
+                 <button onClick={() => setConfirmDeleteExpenseId(null)} className="flex-1 py-4 font-bold text-gray-400 uppercase text-xs">Batal</button>
+                 <button onClick={executeDeleteExpense} className="flex-2 bg-rose-600 text-white py-4 px-6 rounded-2xl font-black uppercase text-xs shadow-lg">Hapus</button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* 💸 INPUT EXPENSE MODAL */}
       {showExpenseModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
            <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full p-8 border border-gray-100 animate-in zoom-in-95 duration-200">
@@ -563,38 +697,54 @@ export default function RekapPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-           <div className="bg-brand-primary p-8 rounded-[40px] shadow-lg border border-brand-primary/20 relative overflow-hidden group">
-              <div className="absolute right-0 bottom-0 opacity-10 group-hover:scale-110 transition-transform">
-                <CheckCircle2 className="w-32 h-32" />
-              </div>
-              <p className="text-[10px] font-black uppercase text-brand-secondary/60 mb-1">Total Kas Masuk</p>
-              <h2 className="text-4xl font-black text-brand-secondary">{formatCurrency(financialStats.total_income)}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+           <div className="bg-brand-primary p-6 rounded-3xl shadow-lg border border-brand-primary/20 relative overflow-hidden group">
+              <p className="text-[9px] font-black uppercase text-brand-secondary/60 mb-1">Total Kas Masuk</p>
+              <h2 className="text-3xl font-black text-brand-secondary">{formatCurrency(financialStats.total_income)}</h2>
+           </div>
+
+           <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 relative overflow-hidden group">
+              <p className="text-[9px] font-black uppercase text-gray-400 mb-1">Jumlah Donatur</p>
+              <h2 className="text-3xl font-black text-brand-secondary">{stats.total_count} <span className="text-xs text-gray-400">Orang</span></h2>
            </div>
            
-           <div className="bg-white p-8 rounded-[40px] shadow-lg border border-gray-100 relative overflow-hidden group">
+           <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 relative overflow-hidden group">
               <button 
                 onClick={() => setShowExpenseModal(true)}
-                className="absolute top-6 right-6 p-2 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                className="absolute top-4 right-4 p-2 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
               >
                 <PlusCircle className="w-5 h-5" />
               </button>
-              <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Total Pengeluaran</p>
-              <h2 className="text-4xl font-black text-rose-500">{formatCurrency(financialStats.total_expense)}</h2>
-              <p className="text-[9px] font-bold text-gray-300 mt-2">Dikelola oleh Bendahara</p>
+              <p className="text-[9px] font-black uppercase text-gray-400 mb-1">Total Pengeluaran</p>
+              <h2 className="text-3xl font-black text-rose-500">{formatCurrency(financialStats.total_expense)}</h2>
            </div>
 
-           <div className="bg-slate-900 p-8 rounded-[40px] shadow-xl relative overflow-hidden group">
-              <div className="absolute right-0 bottom-0 opacity-20 group-hover:scale-110 transition-transform">
-                <ShieldAlert className="w-32 h-32 text-brand-primary" />
-              </div>
-              <p className="text-[10px] font-black uppercase text-brand-primary/60 mb-1">Sisa Saldo Kas</p>
-              <h2 className="text-4xl font-black text-white">{formatCurrency(financialStats.balance)}</h2>
-              <div className="mt-2 flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Real-time Balance</p>
-              </div>
+           <div className="bg-slate-900 p-6 rounded-3xl shadow-xl relative overflow-hidden group border-2 border-brand-primary/20">
+              <p className="text-[9px] font-black uppercase text-brand-primary/60 mb-1">Sisa Saldo Kas</p>
+              <h2 className="text-3xl font-black text-white">{formatCurrency(financialStats.balance)}</h2>
            </div>
+        </div>
+
+        {/* Tab Toggle */}
+        <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 w-fit">
+           <button 
+             onClick={() => setActiveTab('donasi')}
+             className={cn(
+               "px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all",
+               activeTab === 'donasi' ? "bg-brand-secondary text-white shadow-lg" : "text-gray-400 hover:text-brand-secondary"
+             )}
+           >
+              Data Donasi
+           </button>
+           <button 
+             onClick={() => setActiveTab('pengeluaran')}
+             className={cn(
+               "px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all",
+               activeTab === 'pengeluaran' ? "bg-brand-secondary text-white shadow-lg" : "text-gray-400 hover:text-brand-secondary"
+             )}
+           >
+              Data Pengeluaran
+           </button>
         </div>
 
         {/* Table */}
@@ -604,7 +754,7 @@ export default function RekapPage() {
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
                     type="text" 
-                    placeholder="Cari donatur/nomor..." 
+                    placeholder={activeTab === 'donasi' ? "Cari donatur/nomor..." : "Cari item pengeluaran..."}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="w-full pl-12 pr-6 py-4 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-brand-primary text-sm font-medium"
@@ -643,45 +793,83 @@ export default function RekapPage() {
               <table className="w-full text-left">
                  <thead>
                     <tr className="bg-gray-50 text-[10px] font-black uppercase text-gray-400 border-b tracking-widest">
-                       <th className="px-8 py-6">Kwitansi</th>
-                       <th className="px-8 py-6">Nama Donatur</th>
-                       <th className="px-8 py-6 text-right">Nominal</th>
+                       {activeTab === 'donasi' ? (
+                         <>
+                           <th className="px-8 py-6">Kwitansi</th>
+                           <th className="px-8 py-6">Nama Donatur</th>
+                           <th className="px-8 py-6 text-right">Nominal</th>
+                         </>
+                       ) : (
+                         <>
+                           <th className="px-8 py-6">Tanggal</th>
+                           <th className="px-8 py-6">Item Pengeluaran</th>
+                           <th className="px-8 py-6 text-right">Nominal</th>
+                         </>
+                       )}
                        <th className="px-8 py-6 text-center">Aksi</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y text-sm">
-                    {filteredLogs.map((log) => (
-                       <tr key={log.id} className="hover:bg-gray-50/80 transition-all">
-                          <td className="px-8 py-6 font-mono text-[10px] text-brand-primary font-bold">{log.no_kwitansi}</td>
-                          <td className="px-8 py-6 font-black text-brand-secondary uppercase">{log.nama_donatur}</td>
-                          <td className="px-8 py-6 text-right font-black text-brand-secondary text-lg">{formatCurrency(Number(log.nominal))}</td>
-                          <td className="px-8 py-6">
-                             <div className="flex items-center justify-center gap-1">
-                                <button onClick={() => setEditingLog(log)} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
-                                   <Edit3 className="w-5 h-5" />
-                                </button>
-                                <Link href={`/verify/${log.unique_hash}`} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
-                                   <ExternalLink className="w-5 h-5" />
-                                </Link>
-                                <Link href={`/print/${log.unique_hash}`} target="_blank" className="p-3 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-2xl transition-all">
-                                   <Printer className="w-5 h-5" />
-                                </Link>
-                                <button onClick={() => handleShareWA(log)} className="p-3 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-2xl transition-all">
-                                   <MessageSquare className="w-5 h-5" />
-                                </button>
-                                <button 
-                                   onClick={() => setConfirmDeleteId(log.id)}
-                                   className="p-3 text-rose-300 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all cursor-pointer"
-                                >
-                                   <Trash2 className="w-5 h-5" />
-                                </button>
-                             </div>
-                          </td>
-                       </tr>
-                    ))}
+                    {activeTab === 'donasi' ? (
+                      logs.filter(log => 
+                        (log.nama_donatur?.toLowerCase() || "").includes(search.toLowerCase()) ||
+                        (log.no_kwitansi?.toLowerCase() || "").includes(search.toLowerCase())
+                      ).map((log) => (
+                        <tr key={log.id} className="hover:bg-gray-50/80 transition-all">
+                           <td className="px-8 py-6 font-mono text-[10px] text-brand-primary font-bold">{log.no_kwitansi}</td>
+                           <td className="px-8 py-6 font-black text-brand-secondary uppercase">{log.nama_donatur}</td>
+                           <td className="px-8 py-6 text-right font-black text-brand-secondary text-lg">{formatCurrency(Number(log.nominal))}</td>
+                           <td className="px-8 py-6">
+                              <div className="flex items-center justify-center gap-1">
+                                 <button onClick={() => setEditingLog(log)} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
+                                    <Edit3 className="w-5 h-5" />
+                                 </button>
+                                 <Link href={`/verify/${log.unique_hash}`} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
+                                    <ExternalLink className="w-5 h-5" />
+                                 </Link>
+                                 <Link href={`/print/${log.unique_hash}`} target="_blank" className="p-3 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-2xl transition-all">
+                                    <Printer className="w-5 h-5" />
+                                 </Link>
+                                 <button onClick={() => handleShareWA(log)} className="p-3 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-2xl transition-all">
+                                    <MessageSquare className="w-5 h-5" />
+                                 </button>
+                                 <button 
+                                    onClick={() => setConfirmDeleteId(log.id)}
+                                    className="p-3 text-rose-300 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all cursor-pointer"
+                                 >
+                                    <Trash2 className="w-5 h-5" />
+                                 </button>
+                              </div>
+                           </td>
+                        </tr>
+                      ))
+                    ) : (
+                      expenseLogs.filter(log => 
+                        (log.item_pengeluaran?.toLowerCase() || "").includes(search.toLowerCase())
+                      ).map((log) => (
+                        <tr key={log.id} className="hover:bg-gray-50/80 transition-all">
+                           <td className="px-8 py-6 font-mono text-[10px] text-gray-400 font-bold">{new Date(log.tanggal).toLocaleDateString('id-ID')}</td>
+                           <td className="px-8 py-6 font-black text-brand-secondary uppercase">{log.item_pengeluaran}</td>
+                           <td className="px-8 py-6 text-right font-black text-rose-500 text-lg">{formatCurrency(Number(log.nominal))}</td>
+                           <td className="px-8 py-6">
+                              <div className="flex items-center justify-center gap-1">
+                                 <button onClick={() => setEditingExpense(log)} className="p-3 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-2xl transition-all">
+                                    <Edit3 className="w-5 h-5" />
+                                 </button>
+                                 <button 
+                                    onClick={() => setConfirmDeleteExpenseId(log.id)}
+                                    className="p-3 text-rose-300 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all cursor-pointer"
+                                 >
+                                    <Trash2 className="w-5 h-5" />
+                                 </button>
+                              </div>
+                           </td>
+                        </tr>
+                      ))
+                    )}
                  </tbody>
               </table>
-              {filteredLogs.length === 0 && (
+              {((activeTab === 'donasi' && logs.length === 0) || (activeTab === 'pengeluaran' && expenseLogs.length === 0)) && (
                  <div className="p-32 text-center text-gray-400 font-bold uppercase tracking-widest animate-pulse italic">Data Kosong.</div>
               )}
            </div>

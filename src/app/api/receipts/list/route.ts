@@ -14,7 +14,15 @@ export async function GET(request: Request) {
     const bendahara = await db.getSetting("bendahara_name") || "DIDIK SUBIYANTO";
     const signature = await db.getSetting("bendahara_signature") || "";
     
-    return NextResponse.json({ logs, stats, bendahara, signature });
+    const expenseLogsRes = await sql`SELECT * FROM pengeluaran_logs ORDER BY tanggal DESC`;
+    
+    return NextResponse.json({ 
+      logs, 
+      stats, 
+      bendahara, 
+      signature,
+      expense_logs: expenseLogsRes.rows 
+    });
   } catch (error: any) {
     console.error('Error fetching receipts list:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

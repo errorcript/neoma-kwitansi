@@ -9,14 +9,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState({ total_count: 0, total_amount: 0 });
+  const [stats, setStats] = useState({ total_count: 0, total_amount: 0, total_expense: 0, balance: 0 });
+  const [expenseLogs, setExpenseLogs] = useState<any[]>([]);
+  const [showExpenseDetails, setShowExpenseDetails] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     fetch(`/api/public/stats?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (data.success) setStats(data.stats);
+        if (data.success) {
+          setStats(data.stats);
+          setExpenseLogs(data.expense_logs || []);
+        }
       });
   }, []);
 
@@ -49,22 +54,76 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-6">
         
         {/* Live Transparency Stats */}
-        <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-           <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-              <div className="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center mb-2">
-                 <Users className="w-5 h-5 text-brand-primary" />
-              </div>
-              <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Donatur</p>
-              <h3 className="text-xl font-black text-brand-secondary">{stats.total_count} Orang</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
+           <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+              <Users className="w-4 h-4 text-brand-primary mb-1" />
+              <p className="text-[8px] font-black uppercase text-gray-400 tracking-widest">Donatur</p>
+              <h3 className="text-xs font-black text-brand-secondary">{stats.total_count}</h3>
            </div>
-           <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-              <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center mb-2">
-                 <Wallet className="w-5 h-5 text-emerald-600" />
-              </div>
-              <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Total Dana</p>
-              <h3 className="text-xl font-black text-brand-secondary">{formatCurrency(stats.total_amount)}</h3>
+           <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+              <Wallet className="w-4 h-4 text-emerald-600 mb-1" />
+              <p className="text-[8px] font-black uppercase text-gray-400 tracking-widest">Dana Masuk</p>
+              <h3 className="text-[10px] font-black text-brand-secondary">{formatCurrency(stats.total_amount)}</h3>
+           </div>
+           <button 
+             onClick={() => setShowExpenseDetails(true)}
+             className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center hover:bg-rose-50 transition-all group"
+           >
+              <RefreshCw className="w-4 h-4 text-rose-500 mb-1 group-hover:rotate-180 transition-transform duration-500" />
+              <p className="text-[8px] font-black uppercase text-gray-400 tracking-widest">Uang Keluar</p>
+              <h3 className="text-[10px] font-black text-rose-500">{formatCurrency(stats.total_expense)}</h3>
+           </button>
+           <div className="bg-slate-900 p-3 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center">
+              <ShieldCheck className="w-4 h-4 text-brand-primary mb-1" />
+              <p className="text-[8px] font-black uppercase text-gray-400 tracking-widest">Sisa Saldo</p>
+              <h3 className="text-[10px] font-black text-white">{formatCurrency(stats.balance)}</h3>
            </div>
         </div>
+
+        {/* 📑 PUBLIC EXPENSE MODAL */}
+        {showExpenseDetails && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+             <div className="bg-white rounded-[40px] shadow-2xl max-w-xl w-full p-8 border border-gray-100 animate-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]">
+                <div className="flex justify-between items-start mb-6">
+                   <div>
+                      <h2 className="text-2xl font-black text-brand-secondary uppercase tracking-tight">Rincian Pengeluaran</h2>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Transparansi Dana Paguyuban</p>
+                   </div>
+                   <button onClick={() => setShowExpenseDetails(false)} className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-all">
+                      <RefreshCw className="w-5 h-5 text-gray-500" />
+                   </button>
+                </div>
+
+                <div className="flex-grow overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                   {expenseLogs.map((log, idx) => (
+                     <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex justify-between items-center group hover:border-rose-200 transition-all">
+                        <div className="space-y-1">
+                           <p className="text-[9px] font-black text-gray-400 uppercase">{new Date(log.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} • {log.kategori}</p>
+                           <h4 className="font-black text-brand-secondary uppercase text-sm">{log.item_pengeluaran}</h4>
+                        </div>
+                        <p className="text-lg font-black text-rose-500">- {formatCurrency(Number(log.nominal))}</p>
+                     </div>
+                   ))}
+                   {expenseLogs.length === 0 && (
+                     <div className="py-20 text-center space-y-4">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto opacity-20">
+                           <RefreshCw className="w-8 h-8" />
+                        </div>
+                        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs italic">Belum ada rincian pengeluaran.</p>
+                     </div>
+                   )}
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
+                   <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl">
+                      <p className="text-[8px] font-black uppercase text-gray-400 tracking-widest">Total Pengeluaran</p>
+                      <p className="text-xl font-black text-brand-primary">{formatCurrency(stats.total_expense)}</p>
+                   </div>
+                   <button onClick={() => setShowExpenseDetails(false)} className="px-8 py-3 bg-brand-secondary text-white rounded-2xl font-black uppercase text-xs">Tutup</button>
+                </div>
+             </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-gray-100">
           {/* Header Branding */}
