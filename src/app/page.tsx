@@ -130,7 +130,6 @@ export default function Home() {
         logging: false,
         allowTaint: true,
         onclone: (clonedDoc) => {
-          // Buang semua style yang pake oklch/lab biar html2canvas gak crash
           const styles = clonedDoc.getElementsByTagName('style');
           for (let i = 0; i < styles.length; i++) {
             if (styles[i].innerHTML.includes('oklch(') || styles[i].innerHTML.includes('lab(')) {
@@ -140,17 +139,19 @@ export default function Home() {
         }
       });
       
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `${fileName}.png`;
-        link.href = url;
-        link.click();
-        
-        // Bersihkan memory
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }, 'image/png');
+      await new Promise<void>((resolve) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `${fileName}.png`;
+            link.href = url;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          }
+          resolve();
+        }, 'image/png');
+      });
     } catch (err) {
       console.error("Error capturing receipt:", err);
     } finally {

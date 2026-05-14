@@ -278,7 +278,10 @@ export default function RekapPage() {
 
   const downloadReceiptImage = async (id: string, fileName: string) => {
     const element = document.getElementById(id);
-    if (!element) return;
+    if (!element) {
+      showToast(`ELEMEN ${id} TIDAK DITEMUKAN!`, "error");
+      return;
+    }
     
     const scrollY = window.scrollY;
     window.scrollTo(0, 0);
@@ -300,17 +303,24 @@ export default function RekapPage() {
         }
       });
       
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `${fileName}.png`;
-        link.href = url;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }, 'image/png');
-    } catch (err) {
+      // Wrap toBlob in a promise so we can await it
+      await new Promise<void>((resolve) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `${fileName}.png`;
+            link.href = url;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          }
+          resolve();
+        }, 'image/png');
+      });
+
+    } catch (err: any) {
       console.error("Error capturing receipt:", err);
+      showToast(`GAGAL CAPTURE: ${err.message || "Error Unknown"}`, "error");
     } finally {
       window.scrollTo(0, scrollY);
     }

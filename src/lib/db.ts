@@ -130,7 +130,7 @@ export const db = {
   getStats: async (start?: string, end?: string) => {
     try {
       await createTable();
-      let query = `SELECT COUNT(id) as total_count, SUM(nominal) as total_amount FROM donasi_logs WHERE status = 'active'`;
+      let query = `SELECT COUNT(DISTINCT nama_donatur) as total_count, SUM(nominal) as total_amount FROM donasi_logs WHERE status = 'active'`;
       const params: any[] = [];
 
       if (start) {
