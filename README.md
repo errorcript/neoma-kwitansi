@@ -14,9 +14,11 @@ Sistem manajemen kwitansi donasi profesional berbasis cloud untuk **Paguyuban Dh
 - 🖼️ **Auto-Capture Receipt Image**: Fitur "Share WhatsApp" otomatis meng-capture kartu kwitansi menjadi gambar PNG (Blob) yang siap kirim tanpa pecah.
 - 🔢 **Professional Sequential Numbering**: Penomoran kwitansi otomatis (`001/PAG-DPM/MOBSOS/...`) yang reset tiap bulan.
 - 🔍 **QR Verification System**: Scan QR Code unik untuk verifikasi keaslian donasi secara real-time.
-- 📊 **Dashboard Rekap & Export**: Monitoring statistik dan export data ke Excel Pro untuk pelaporan bulanan.
-- 🛡️ **Double Security Hub**: Akses admin terproteksi dan penghapusan data wajib menggunakan PIN khusus.
+- 📊 **Dashboard Rekap & LPJ Instan**: Monitoring statistik, export Excel, dan generate laporan visual (PNG) dalam satu klik.
+- 🛡️ **Double Security Hub**: Akses admin terproteksi dan fitur Logout resmi terpusat di halaman Settings.
+- 📱 **Hybrid Navigation**: Sidebar elegan di PC dan **Solid Bottom Bar** di HP untuk pengalaman app native.
 - 📱 **PWA Support**: Bisa diinstal di Android/iOS layaknya aplikasi native langsung dari browser.
+- 🎓 **Guided Onboarding**: Tutorial interaktif (Spotlight) untuk membantu admin mengoperasikan sistem secara mandiri.
 
 ## 🛠️ Tech Stack
 
